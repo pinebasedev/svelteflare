@@ -1,0 +1,12 @@
+{
+  "extends": ["@repo/typescript-config/svelte.json"],
+  "compilerOptions": {
+    "types": ["svelte"],
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "$lib/*": ["src/*"]
+    }
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/syncpack/dist/schema.json",
+  "source": ["apps/*/package.json", "packages/*/package.json"],
+  "sortAz": ["dependencies", "devDependencies"],
+  "versionGroups": [
+    {
+      "dependencies": ["**"],
+      "packages": ["**"],
+      "pinVersion": "exact"
+    }
+  ]
+}

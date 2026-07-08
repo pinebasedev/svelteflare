@@ -1,0 +1,64 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "interactive": true,
+      "persistent": true,
+      "outputLogs": "new-only"
+    },
+    "clean": {
+      "cache": false
+    },
+    "cf-typegen": {
+      "dependsOn": ["clean"],
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    },
+    "check": {
+      "dependsOn": ["clean", "^check"],
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    },
+    "format": {
+      "dependsOn": ["check", "^format"],
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["format", "^lint"],
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    },
+    "build:staging": {
+      "dependsOn": ["clean", "cf-typegen", "check", "format", "lint", "^build:staging"],
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "src/workerConfiguration.d.ts"],
+      "outputs": [".svelte-kit/**", "build/**"]
+    },
+    "build:production": {
+      "dependsOn": ["clean", "cf-typegen", "check", "lint", "format", "^build:production"],
+      "cache": false,
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "src/workerConfiguration.d.ts"],
+      "outputs": [".svelte-kit/**", "build/**"],
+      "env": ["CF_ENV"]
+    },
+    "deploy:staging": {
+      "cache": false,
+      "dependsOn": ["build:staging"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    },
+    "deploy:production": {
+      "cache": false,
+      "dependsOn": ["build:production"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": []
+    }
+  }
+}

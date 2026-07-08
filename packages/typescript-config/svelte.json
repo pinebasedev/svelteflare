@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "types": ["unplugin-icons/types/svelte"],
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+    "target": "ESNext",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "lib": ["esnext", "DOM", "DOM.Iterable"]
+  }
+}

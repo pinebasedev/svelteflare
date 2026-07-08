@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+
+ignoredBuiltDependencies:
+  - better-sqlite3
+  - sharp
+  - workerd
+
+onlyBuiltDependencies:
+  - esbuild

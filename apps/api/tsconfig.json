@@ -1,0 +1,5 @@
+{
+  "extends": "@repo/typescript-config/worker.json",
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "*.ts"],
+  "exclude": ["dist", "node_modules"]
+}

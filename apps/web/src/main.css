@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+@plugin 'tailwind-scrollbar';
+@import '@repo/ui/global.css';
+
+@layer base {
+  body {
+    @apply bg-background font-sans text-foreground;
+  }
+}

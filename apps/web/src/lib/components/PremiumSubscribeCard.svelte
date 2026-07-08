@@ -1,0 +1,143 @@
+<script lang="ts">
+	import { browser } from '$app/environment';
+	import { goto, invalidate } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { PUBLIC_APP_URL } from '$env/static/public';
+	import { authClient } from '$lib/authClient';
+	import { Badge, Button, Card, Switch } from '@repo/ui';
+	import { toast } from 'svelte-sonner';
+	import CheckBold from '~icons/ph/check-bold';
+	import ArrowLeftBold from '~icons/ph/arrow-left-bold';
+
+	type Props = {
+		onSuccess?: () => void;
+	};
+
+	let { onSuccess }: Props = $props();
+
+	const OFFER = {
+		monthlyPrice: 9,
+		yearlyPrice: 79,
+		discountBadge: '27% OFF',
+		features: [
+			'Full access to all features',
+			'Priority support',
+			'Unlimited usage'
+		]
+	} as const;
+
+	let isYearly = $state(false);
+	let loading = $state(false);
+
+	let price = $derived(isYearly ? OFFER.yearlyPrice : OFFER.monthlyPrice);
+	let periodLabel = $derived(isYearly ? '/year' : '/mo');
+	let hasSession = $derived(Boolean((page.data as { session?: unknown }).session));
+	let hasActiveSubscription = $derived(
+		Boolean((page.data as { activeSubscription?: unknown }).activeSubscription)
+	);
+
+	const appUrl = (path: string) => new URL(path, `${PUBLIC_APP_URL}/`).toString();
+
+	$effect(() => {
+		if (!browser) return;
+
+		const url = new URL(window.location.href);
+		const checkout = url.searchParams.get('checkout');
+		if (!checkout) return;
+
+		const nextUrl = new URL(window.location.href);
+		nextUrl.searchParams.delete('checkout');
+		window.history.replaceState(window.history.state, '', nextUrl.toString());
+
+		if (checkout === 'success') {
+			void invalidate('auth:session').then(() => {
+				if ((page.data as { isEntitled?: boolean }).isEntitled) onSuccess?.();
+			});
+		}
+	});
+
+	async function subscribe() {
+		if (loading) return;
+		loading = true;
+
+		try {
+			if (!hasSession) {
+				await goto(resolve('/login'));
+				toast.error('Please sign in first!');
+				return;
+			}
+
+			const { error } = await authClient.subscription.upgrade({
+				plan: 'premium',
+				annual: isYearly,
+				successUrl: appUrl('/?checkout=success'),
+				cancelUrl: appUrl('/premium'),
+				returnUrl: appUrl('/premium')
+			});
+
+			if (error?.message) {
+				toast.error(error.message.toString());
+			}
+		} catch {
+			toast.error('An unexpected error occurred. Please try again.');
+		} finally {
+			loading = false;
+		}
+	}
+</script>
+
+<div class="w-full max-w-xl">
+	<Card.Root class="w-full">
+		<Card.Header>
+			<Card.Title class="text-xl text-center">Premium</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			<div class="flex flex-col gap-3">
+				<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full">
+					<div class="justify-self-end text-sm">Monthly</div>
+					<div class="justify-self-center">
+						<Switch.Root bind:checked={isYearly} />
+					</div>
+					<div class="flex items-center gap-1 justify-self-start">
+						<span class="text-sm">Yearly</span>
+						<Badge.Root class="bg-amber">{OFFER.discountBadge}</Badge.Root>
+					</div>
+				</div>
+
+				<div class="text-6xl w-full text-center my-2 mb-6">
+					${price}<span class="text-base">{periodLabel}</span>
+				</div>
+
+				{#each OFFER.features as feature (feature)}
+					<div class="inline-flex items-center gap-2 text-sm">
+						<CheckBold class="size-5 text-green" />{feature}
+					</div>
+				{/each}
+
+				{#if hasActiveSubscription}
+					<div class="inline-flex items-center justify-center mt-4 w-full text-sm text-green">
+						You already have an active subscription.
+					</div>
+				{:else}
+					<div class="flex flex-col items-center mt-4 mb-2 w-full">
+						<Button.Root onclick={subscribe} disabled={loading} class="w-64">
+							{loading ? 'Opening checkout...' : 'Subscribe'}
+						</Button.Root>
+					</div>
+				{/if}
+			</div>
+
+			<div class="mt-4 text-center">
+				<Button.Root
+					href="/"
+					variant="link"
+					size="sm"
+					class="inline-flex items-center gap-1 p-0 text-xs"
+				>
+					<ArrowLeftBold class="size-4!" />Go back
+				</Button.Root>
+			</div>
+		</Card.Content>
+	</Card.Root>
+</div>
