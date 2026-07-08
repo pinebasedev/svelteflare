@@ -3,7 +3,6 @@
 	import { resolve } from '$app/paths';
 	import { PUBLIC_APP_URL } from '$env/static/public';
 	import { authClient } from '$lib/authClient';
-	import { ph } from '$lib/posthog';
 	import { loginFormSchema } from '$lib/forms/login-schema';
 	import { Button, Card, Form, Input } from '@repo/ui';
 	import { toast } from 'svelte-sonner';
@@ -54,23 +53,23 @@
 		async onUpdate({ form }) {
 			if (!form.valid) return;
 
-			await authClient.signIn.email(
-				{
+			try {
+				const { error } = await authClient.signIn.email({
 					email: form.data.email as string,
 					password: form.data.password as string,
 					rememberMe: true
-				},
-				{
-					onSuccess: async (ctx) => {
-						ph.identify(ctx.data.user);
-						await goto(resolve('/'));
-						await invalidate('auth:session');
-					},
-					onError: (ctx) => {
-						toast.error(ctx.error.message ?? 'Could not log in. Please try again.');
-					}
+				});
+
+				if (error) {
+					toast.error(error.message ?? 'Could not log in. Please try again.');
+					return;
 				}
-			);
+
+				await goto(resolve('/'));
+				await invalidate('auth:session');
+			} catch {
+				toast.error('Could not log in. Please try again.');
+			}
 		}
 	});
 

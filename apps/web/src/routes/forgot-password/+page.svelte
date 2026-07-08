@@ -17,20 +17,21 @@
 		async onUpdate({ form }) {
 			if (!form.valid) return;
 
-			await authClient.requestPasswordReset(
-				{
+			try {
+				const { error } = await authClient.requestPasswordReset({
 					email: form.data.email as string,
 					redirectTo: `${PUBLIC_APP_URL}/reset-password`
-				},
-				{
-					onSuccess: () => {
-						toast.info('Please check your email to reset your password.');
-					},
-					onError: (ctx) => {
-						toast.error(ctx.error.message ?? 'Could not send the reset email. Please try again.');
-					}
+				});
+
+				if (error) {
+					toast.error(error.message ?? 'Could not send the reset email. Please try again.');
+					return;
 				}
-			);
+
+				toast.info('Please check your email to reset your password.');
+			} catch {
+				toast.error('Could not send the reset email. Please try again.');
+			}
 		}
 	});
 

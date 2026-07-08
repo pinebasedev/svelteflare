@@ -39,12 +39,10 @@
   "type": "module",
   "dependencies": {
     "@better-auth/stripe": "1.6.23",
-    "@fontsource-variable/lexend-mega": "5.2.10",
     "@repo/ui": "workspace:*",
     "@tailwindcss/vite": "4.3.2",
     "better-auth": "1.6.23",
     "hono": "4.12.28",
-    "posthog-js": "1.398.0",
     "svelte-sonner": "1.1.1",
     "tailwindcss": "4.3.2"
   },

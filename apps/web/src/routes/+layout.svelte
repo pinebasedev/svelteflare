@@ -1,32 +1,13 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { PUBLIC_APP_URL } from '$env/static/public';
-	import { ph } from '$lib/posthog';
 	import { Toaster, Tooltip } from '@repo/ui';
-	import { onMount } from 'svelte';
 	import '../main.css';
 	import type { LayoutProps } from './$types';
 
-	let { data, children }: LayoutProps = $props();
+	let { children }: LayoutProps = $props();
 
 	const children_render = $derived(children);
-
-	if (browser) {
-		beforeNavigate(() => ph.pageLeave());
-		afterNavigate(() => ph.pageView());
-	}
-
-	onMount(() => {
-		if (!browser) return;
-
-		if (data.user) {
-			ph.identify(data.user);
-		} else {
-			ph.reset();
-		}
-	});
 </script>
 
 <svelte:head>

@@ -3,7 +3,6 @@
 	import { resolve } from '$app/paths';
 	import { PUBLIC_APP_URL } from '$env/static/public';
 	import { authClient } from '$lib/authClient';
-	import { ph } from '$lib/posthog';
 	import { registerFormSchema } from '$lib/forms/register-schema';
 	import { Button, Card, Form, Input } from '@repo/ui';
 	import { toast } from 'svelte-sonner';
@@ -19,24 +18,23 @@
 		async onUpdate({ form }) {
 			if (!form.valid) return;
 
-			await authClient.signUp.email(
-				{
+			try {
+				const { error } = await authClient.signUp.email({
 					name: form.data.name as string,
 					email: form.data.email as string,
 					password: form.data.password as string,
 					callbackURL: `${PUBLIC_APP_URL}/`
-				},
-				{
-					onSuccess: async (ctx) => {
-						ph.identify(ctx.data.user);
-						toast.success('Account created! Please check your email to verify.');
-						await goto(resolve('/login'));
-					},
-					onError: (ctx) => {
-						toast.error(ctx.error.message ?? 'Could not create account. Please try again.');
-					}
+				});
+
+				if (error) {
+					toast.error(error.message ?? 'Could not create account. Please try again.');
+					return;
 				}
-			);
+
+				await goto(resolve(`/verify-email?email=${encodeURIComponent(form.data.email as string)}`));
+			} catch {
+				toast.error('Could not create account. Please try again.');
+			}
 		}
 	});
 

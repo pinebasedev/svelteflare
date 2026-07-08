@@ -1,10 +1,12 @@
 import { stripe, type StripePlan } from "@better-auth/stripe";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { emailOTP } from "better-auth/plugins/email-otp";
+import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import type { Db } from "./db/database";
-import { plan } from "./db/schema";
+import { plan, user as userTable } from "./db/schema";
 import { sendResetEmail, sendVerificationOtpEmail } from "./helpers/email";
 import { getAllowedOrigin } from "./helpers/origins";
 import type { AppBindings } from "./types";
@@ -19,12 +21,43 @@ export const getAuth = (
     return instance;
   }
 
-  const stripeClient = new Stripe(env.STRIPE_SECRET_KEY, {
-    apiVersion: "2026-06-24.dahlia"
-  });
-
-  const betterAuthOrigin = new URL(env.PUBLIC_BETTER_AUTH_URL).origin;
+  const betterAuthOrigin = env.PUBLIC_BETTER_AUTH_URL
+    ? new URL(env.PUBLIC_BETTER_AUTH_URL).origin
+    : "http://localhost:9003";
   const allowedOrigin = getAllowedOrigin(env);
+
+  const stripePlugin = env.STRIPE_SECRET_KEY
+    ? stripe({
+        stripeClient: new Stripe(env.STRIPE_SECRET_KEY, {
+          apiVersion: "2026-06-24.dahlia"
+        }),
+        stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+        createCustomerOnSignUp: true,
+        subscription: {
+          enabled: true,
+          getCheckoutSessionParams: async () => ({
+            params: {
+              billing_address_collection: "required",
+              allow_promotion_codes: true
+            }
+          }),
+          plans: async (): Promise<StripePlan[]> => {
+            const plans = await db.select().from(plan);
+            return plans.map((currentPlan) => ({
+              name: currentPlan.name,
+              priceId: currentPlan.priceId,
+              annualDiscountPriceId: currentPlan.annualDiscountPriceId,
+              freeTrial: {
+                days: currentPlan.freeTrialDays,
+                onTrialStart: async () => {},
+                onTrialEnd: async () => {},
+                onTrialExpired: async () => {}
+              }
+            })) as StripePlan[];
+          }
+        }
+      })
+    : null;
 
   instance = betterAuth({
     telemetry: { enabled: false },
@@ -32,6 +65,25 @@ export const getAuth = (
     basePath: "/v1/auth",
     secret: env.BETTER_AUTH_SECRET,
     trustedOrigins: allowedOrigin ? [allowedOrigin] : [],
+    hooks: {
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path === "/sign-up/email") {
+          const email = (ctx.body as { email?: string } | undefined)?.email;
+          if (email) {
+            const existing = await db
+              .select({ emailVerified: userTable.emailVerified })
+              .from(userTable)
+              .where(eq(userTable.email, email))
+              .get();
+            if (existing?.emailVerified) {
+              throw new APIError("UNPROCESSABLE_ENTITY", {
+                message: "Email already in use."
+              });
+            }
+          }
+        }
+      })
+    },
     socialProviders: {
       google: {
         prompt: "select_account",
@@ -61,34 +113,7 @@ export const getAuth = (
       }
     },
     plugins: [
-      stripe({
-        stripeClient,
-        stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
-        createCustomerOnSignUp: true,
-        subscription: {
-          enabled: true,
-          getCheckoutSessionParams: async () => ({
-            params: {
-              billing_address_collection: "required",
-              allow_promotion_codes: true
-            }
-          }),
-          plans: async (): Promise<StripePlan[]> => {
-            const plans = await db.select().from(plan);
-            return plans.map((currentPlan) => ({
-              name: currentPlan.name,
-              priceId: currentPlan.priceId,
-              annualDiscountPriceId: currentPlan.annualDiscountPriceId,
-              freeTrial: {
-                days: currentPlan.freeTrialDays,
-                onTrialStart: async () => {},
-                onTrialEnd: async () => {},
-                onTrialExpired: async () => {}
-              }
-            })) as StripePlan[];
-          }
-        }
-      }),
+      ...(stripePlugin ? [stripePlugin] : []),
       emailOTP({
         overrideDefaultEmailVerification: true,
         otpLength: 6,

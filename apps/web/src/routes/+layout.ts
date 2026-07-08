@@ -1,6 +1,4 @@
-import posthog from 'posthog-js';
-import { browser } from '$app/environment';
-import { PUBLIC_APP_URL, PUBLIC_POSTHOG_KEY, PUBLIC_POSTHOG_HOST } from '$env/static/public';
+import { PUBLIC_APP_URL } from '$env/static/public';
 import { createApiClient, type AccessPayload } from '$lib/api';
 import type { LayoutLoad } from './$types';
 
@@ -35,21 +33,6 @@ export const ssr = false;
 
 export const load: LayoutLoad = async ({ fetch, url, depends }) => {
   depends('auth:session');
-
-  if (browser && !posthog.__loaded) {
-    posthog.init(PUBLIC_POSTHOG_KEY, {
-      api_host: PUBLIC_POSTHOG_HOST,
-      advanced_disable_feature_flags: true,
-      capture_pageview: false,
-      capture_pageleave: false,
-      capture_exceptions: false,
-      capture_heatmaps: false,
-      disable_conversations: true,
-      disable_product_tours: true,
-      disable_surveys: true,
-      disable_web_experiments: true
-    });
-  }
 
   return {
     ...DEFAULT_SEO,

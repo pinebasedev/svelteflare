@@ -6,6 +6,9 @@ package
 .env
 .env.*
 !.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 dist

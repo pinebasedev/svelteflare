@@ -21,8 +21,12 @@ const sendEmail = async (
   msg.setSubject(subject);
   msg.addMessage({ contentType: "text/plain", data: text });
 
-  const message = new EmailMessage(from, to, msg.asRaw());
-  await env.EMAIL.send(message);
+  try {
+    const message = new EmailMessage(from, to, msg.asRaw());
+    await env.EMAIL.send(message);
+  } catch {
+    console.log(`[dev email] to=${to} subject="${subject}"\n${text}`);
+  }
 };
 
 export const sendVerificationOtpEmail = async (

@@ -23,21 +23,22 @@
 		async onUpdate({ form }) {
 			if (!form.valid) return;
 
-			await authClient.resetPassword(
-				{
+			try {
+				const { error } = await authClient.resetPassword({
 					newPassword: form.data.newPassword as string,
 					token: form.data.token as string
-				},
-				{
-					onSuccess: async () => {
-						toast.success('Password reset successfully');
-						await goto(resolve('/login'));
-					},
-					onError: (ctx) => {
-						toast.error(ctx.error.message ?? 'Could not reset your password. Please try again.');
-					}
+				});
+
+				if (error) {
+					toast.error(error.message ?? 'Could not reset your password. Please try again.');
+					return;
 				}
-			);
+
+				toast.success('Password reset successfully');
+				await goto(resolve('/login'));
+			} catch {
+				toast.error('Could not reset your password. Please try again.');
+			}
 		}
 	});
 
