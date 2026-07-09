@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { authClient } from '$lib/authClient';
 	import { invalidate } from '$app/navigation';
+	import { authClient } from '$lib/authClient';
 	import { Button, Card } from '@repo/ui';
 
 	let { data } = $props();
@@ -29,7 +29,7 @@
 					</div>
 					<div class="flex items-center justify-between">
 						<span class="text-foreground/60">Subscription</span>
-						<span class={isEntitled ? 'text-green' : 'text-foreground/60'}>
+						<span class={isEntitled ? 'text-green-500' : 'text-foreground/60'}>
 							{isEntitled ? 'Premium' : 'Free'}
 						</span>
 					</div>
@@ -44,7 +44,7 @@
 		</Card.Root>
 	{:else}
 		<div class="text-center flex flex-col gap-4">
-			<h1 class="text-4xl font-heading">YourApp</h1>
+			<h1 class="text-4xl font-sans font-semibold">YourApp</h1>
 			<p class="text-foreground/60">Your app description goes here.</p>
 			<Button.Root href="/login">Get started</Button.Root>
 		</div>
