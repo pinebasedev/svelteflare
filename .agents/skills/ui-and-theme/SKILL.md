@@ -56,17 +56,25 @@ Components live in `packages/ui` and are imported by the web app as `@repo/ui`.
 
 ### Installing a missing component
 
+Use the official shadcn-svelte CLI, run from the `packages/ui` directory:
+
+```bash
+cd packages/ui && pnpm dlx shadcn-svelte@latest add <component-name>
+# e.g.:
+cd packages/ui && pnpm dlx shadcn-svelte@latest add table
+cd packages/ui && pnpm dlx shadcn-svelte@latest add dialog
+cd packages/ui && pnpm dlx shadcn-svelte@latest add select
+cd packages/ui && pnpm dlx shadcn-svelte@latest add dropdown-menu
+cd packages/ui && pnpm dlx shadcn-svelte@latest add avatar
+cd packages/ui && pnpm dlx shadcn-svelte@latest add separator
+cd packages/ui && pnpm dlx shadcn-svelte@latest add sheet
+cd packages/ui && pnpm dlx shadcn-svelte@latest add tabs
+```
+
+Or via the monorepo script shortcut (same thing):
+
 ```bash
 pnpm --filter @repo/ui ui:add <component-name>
-# e.g.:
-pnpm --filter @repo/ui ui:add table
-pnpm --filter @repo/ui ui:add dialog
-pnpm --filter @repo/ui ui:add select
-pnpm --filter @repo/ui ui:add dropdown-menu
-pnpm --filter @repo/ui ui:add avatar
-pnpm --filter @repo/ui ui:add separator
-pnpm --filter @repo/ui ui:add sheet
-pnpm --filter @repo/ui ui:add tabs
 ```
 
 After installing, export the new component from `packages/ui/src/index.ts`:
@@ -190,6 +198,8 @@ The `.dark` class variant is defined in `global.css` as `@custom-variant dark (&
 
 ## Icons
 
+Always use `unplugin-icons` — never install or import from `lucide-svelte` or any other icon package directly. The `~icons/` virtual import is resolved by the bundler at build time.
+
 ```svelte
 <script lang="ts">
   import MoonIcon from '~icons/lucide/moon'
@@ -201,6 +211,11 @@ The `.dark` class variant is defined in `global.css` as `@custom-variant dark (&
 ```
 
 Browse available icons at lucide.dev. The import path is always `~icons/lucide/<kebab-name>`.
+
+**Wrong** — do not do this:
+```svelte
+import { Moon } from 'lucide-svelte'   // ❌ wrong package
+```
 
 ## Forms
 
