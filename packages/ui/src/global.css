@@ -6,6 +6,12 @@
 @source "./**/*.{svelte,ts,js,html}";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant data-open (&[data-state='open']);
+@custom-variant data-closed (&[data-state='closed']);
+@custom-variant data-checked (&[data-state='checked']);
+@custom-variant data-unchecked (&[data-state='unchecked']);
+@custom-variant data-horizontal (&[data-orientation='horizontal']);
+@custom-variant data-vertical (&[data-orientation='vertical']);
 
 :root {
   --background: oklch(1 0 0);
