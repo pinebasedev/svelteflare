@@ -342,7 +342,7 @@
 											onclick={() => (voiceEnabled = !voiceEnabled)}
 											size="icon-xs"
 											data-active={voiceEnabled}
-											class="data-[active=true]:bg-orange-100 data-[active=true]:text-orange-700 dark:data-[active=true]:bg-orange-800 dark:data-[active=true]:text-orange-100"
+											class="data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
 											aria-pressed={voiceEnabled}
 											aria-label="Toggle voice mode"
 										>
@@ -717,7 +717,7 @@
 												{#if model.badge}
 													<Badge.Root
 														variant="secondary"
-														class="h-5 rounded-sm bg-blue-100 px-1 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+														class="bg-accent text-accent-foreground h-5 rounded-sm px-1 text-xs"
 													>
 														{model.badge}
 													</Badge.Root>

@@ -29,6 +29,12 @@ Build all UI from **shadcn-svelte components** and **theme CSS variables only**.
 
 ## Using components
 
+All controls and reusable visual primitives must come from `packages/ui` and be imported through
+`@repo/ui`. Application-level feature components may compose those primitives in `apps/web`, but
+must not recreate buttons, inputs, selects, textareas, dialogs, or other controls with raw markup,
+and must not import `bits-ui`, `formsnap`, or icon component packages directly. If a primitive is
+missing, add it to `packages/ui`, export it from `packages/ui/src/index.ts`, and use that export.
+
 Components live in `packages/ui` and are imported by the web app as `@repo/ui`.
 
 ```svelte
