@@ -17,7 +17,7 @@ Two-layer Cloudflare stack:
 | Layer | Package | Port | Tech |
 |-------|---------|------|------|
 | API | `@repo/api` | 9003 | Hono + Drizzle ORM + better-auth, runs as a Cloudflare Worker |
-| Web | `@repo/web` | 9002 | SvelteKit static SPA hosted on Cloudflare Pages |
+| Web | `@repo/web` | 9002 | SvelteKit static SPA served by a Cloudflare Worker (static assets) |
 
 The API handles all business logic; the web app is a pure frontend that talks to the API via `PUBLIC_API_URL`.
 
@@ -65,7 +65,7 @@ Package names use the `@repo/*` workspace alias.
 
 ### Config Files
 - Cloudflare Workers: `apps/api/wrangler.jsonc` (D1 bindings, env vars, rate limits)
-- Cloudflare Pages: `apps/web/wrangler.jsonc`
+- Web worker (static assets): `apps/web/wrangler.jsonc`
 - TypeScript: each app extends `@repo/typescript-config/{svelte,worker}.json`
 - Tailwind: v4 via `@tailwindcss/vite` plugin — no separate config file
 - Prettier: root `.prettierrc` (single quotes, print width 100, no trailing commas)
@@ -111,8 +111,16 @@ pnpm --filter @repo/api test             # Run Vitest
 **Web-specific:**
 ```bash
 pnpm --filter @repo/web build:staging    # Build for staging env
-pnpm --filter @repo/web deploy:staging   # Deploy to Cloudflare Pages
+pnpm --filter @repo/web deploy:staging   # Deploy the web worker to staging
 ```
+
+## Deployment (GitHub Actions — managed by Pinebase)
+
+CI/CD lives in `.github/workflows/deploy.yml`:
+
+- Push to `staging` → quality gates (typecheck, format, lint) + build + deploy of the **preview** app. Push to `main` → same for the **live** app (`main` is only reached via Pinebase's promote flow — never push to it directly).
+- The pipeline decides on its own whether to deploy the api, the web app, or both, by comparing against the `pinebase-deploy-staging` / `pinebase-deploy-production` git tags (last deployed commit per environment). D1 migrations are applied automatically before an api deploy.
+- **Never edit or delete `.github/workflows/deploy.yml` or the `pinebase-deploy-*` tags.** `apps/web/.env.staging` and `apps/web/.env.production` are managed by Pinebase too (public URLs baked into the web build) — leave their Pinebase-written lines intact.
 
 ## Conventions
 

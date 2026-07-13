@@ -6,6 +6,8 @@ package
 .env
 .env.*
 !.env.example
+!.env.staging
+!.env.production
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
