@@ -49,7 +49,7 @@ jobs:
 
       - name: Check out repository
         if: steps.gate.outputs.configured == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # full history + tags for change detection
 
@@ -65,11 +65,11 @@ jobs:
 
       - name: Set up pnpm
         if: steps.gate.outputs.configured == 'true'
-        uses: pnpm/action-setup@v4 # version from the packageManager field
+        uses: pnpm/action-setup@v6 # version from the packageManager field
 
       - name: Set up Node
         if: steps.gate.outputs.configured == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: pnpm
