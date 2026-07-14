@@ -108,6 +108,8 @@ Avoid destructuring if you need to mutate the item (with something like `bind:va
 
 ## Using JavaScript variables in CSS
 
+> [!NOTE] The `color: red` / `--color="red"` values in the examples below only illustrate the mechanics. In this repo, real styles use the theme's semantic tokens (see the `ui-and-theme` skill) — never hardcode colors in `<style>` blocks, style directives, or component props; pass token-based values like `var(--muted-foreground)` instead.
+
 If you have a JS variable that you want to use inside CSS you can set a CSS custom property with the `style:` directive.
 
 ```svelte

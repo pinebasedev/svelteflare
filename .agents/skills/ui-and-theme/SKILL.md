@@ -14,7 +14,19 @@ description: >
 
 # UI and Theme
 
-Build all UI from **shadcn-svelte components** and **theme CSS variables only**. Never use raw hex/rgb colors or arbitrary Tailwind values for anything that should adapt to the theme.
+Build all UI from **shadcn-svelte components** and **theme CSS variables only**. Never use raw hex/rgb colors, Tailwind palette classes, or arbitrary color values — the app has a founder-approved theme, and every screen must look like it belongs to it.
+
+## Allowed vs forbidden styling
+
+| ❌ Never | ✅ Instead |
+|---|---|
+| `bg-blue-500`, `text-green-500`, `bg-zinc-900`, `bg-white`, `text-black` | `bg-primary`, `text-primary`, `bg-card`, `bg-background`, `text-foreground` |
+| `bg-[#1e40af]`, `text-[oklch(0.6 0.2 30)]`, `border-[rgb(30,40,50)]` | a semantic token utility: `bg-secondary`, `border-border`, … |
+| `style="color: #333"`, `color: red` in `<style>` blocks | token utilities, or `var(--muted-foreground)` etc. in CSS |
+| `text-green` / `bg-amber` (token doesn't exist) | check `packages/ui/src/global.css` for real tokens first |
+| success/warning states via palette colors | `text-primary`, `text-destructive`, `text-muted-foreground`, `bg-primary/10` |
+
+Non-color arbitrary values (`w-[420px]`, `grid-cols-[1fr_2fr]`) are fine. Lint enforces the color rules (`theme/no-hardcoded-colors`) and fails `just check` — if lint flags a color, replace it with a token; never suppress the error.
 
 ## Stack at a glance
 
@@ -56,9 +68,9 @@ Components live in `packages/ui` and are imported by the web app as `@repo/ui`.
 </Card.Root>
 ```
 
-### Currently installed components
+### Installed components
 
-`badge`, `button`, `card`, `form`, `input`, `label`, `sonner` (toasts), `switch`, `tooltip`
+Read `packages/ui/src/index.ts` for the current list — roughly 57 components are already exported (Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Calendar, Chart, Checkbox, Command, DataTable, Dialog, Drawer, DropdownMenu, Form, Input, Label, Pagination, Popover, Select, Sheet, Sidebar, Skeleton, Slider, Switch, Table, Tabs, Textarea, Toggle, Tooltip, and more). **Always check that export list before installing anything or building a component by hand — what you need almost certainly already exists.**
 
 ### Installing a missing component
 
@@ -127,6 +139,8 @@ All semantic color tokens are CSS custom properties. Use them via Tailwind utili
 | `--ring` | near-black | gray | focus rings |
 | `--sidebar` | off-white | dark-gray | sidebar surface |
 
+This table is a summary — the authoritative token list is the `:root` block of `packages/ui/src/global.css` (it also defines `chart-1`…`chart-5`, the `sidebar-*` family, radius, and fonts). Read it before concluding a token doesn't exist. The values differ per theme; never assume specific colors — the tokens are the contract.
+
 ### Tailwind class patterns
 
 ```svelte
@@ -151,6 +165,8 @@ All semantic color tokens are CSS custom properties. Use them via Tailwind utili
 
 ## Customizing the theme
 
+**⚠️ Theme work only — not feature work.** `packages/ui/src/global.css` and `packages/ui/src/components` are theme-owned. Edit them ONLY when the user explicitly asks to change the theme or brand (through the theme workflow), never as a side effect of building a feature. During feature work, use existing tokens exclusively. And never invent color values yourself: when the user wants new colors, use the exact values they provide, or show options and let them choose.
+
 Tokens live in `packages/ui/src/global.css`. Edit `:root` (light) and `.dark` blocks using oklch values.
 
 ```css
@@ -165,7 +181,7 @@ Tokens live in `packages/ui/src/global.css`. Edit `:root` (light) and `.dark` bl
 }
 ```
 
-To add a brand color as a new token:
+To add a brand color as a new token (again: only when the user explicitly provides one):
 
 ```css
 /* In :root / .dark */
@@ -194,13 +210,14 @@ Mode is managed by `mode-watcher` (already wired in the root layout).
 <ModeWatcher />  <!-- place once in root layout only -->
 ```
 
-Dark-mode-conditional styles use the `dark:` prefix:
+**Dark mode is automatic through the tokens** — `bg-background text-foreground` already renders correctly in both modes because the `.dark` block swaps the variable values. Do not write `dark:` color overrides in feature code:
 
 ```svelte
-<div class="bg-white dark:bg-zinc-900 text-black dark:text-white" />
+<div class="bg-background text-foreground" />           <!-- ✅ adapts by itself -->
+<div class="bg-white dark:bg-zinc-900" />               <!-- ❌ bypasses the theme -->
 ```
 
-The `.dark` class variant is defined in `global.css` as `@custom-variant dark (&:is(.dark *))`.
+Reserve `dark:` for the rare non-color adjustment (e.g. `dark:shadow-none`). The `.dark` class variant is defined in `global.css` as `@custom-variant dark (&:is(.dark *))`.
 
 ## Icons
 

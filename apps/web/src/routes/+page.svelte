@@ -29,7 +29,7 @@
 					</div>
 					<div class="flex items-center justify-between">
 						<span class="text-foreground/60">Subscription</span>
-						<span class={isEntitled ? 'text-green-500' : 'text-foreground/60'}>
+						<span class={isEntitled ? 'text-primary' : 'text-foreground/60'}>
 							{isEntitled ? 'Premium' : 'Free'}
 						</span>
 					</div>

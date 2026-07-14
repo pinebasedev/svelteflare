@@ -101,7 +101,7 @@
 					</div>
 					<div class="flex items-center gap-1 justify-self-start">
 						<span class="text-sm">Yearly</span>
-						<Badge.Root class="bg-amber">{OFFER.discountBadge}</Badge.Root>
+						<Badge.Root class="bg-primary text-primary-foreground">{OFFER.discountBadge}</Badge.Root>
 					</div>
 				</div>
 
@@ -111,12 +111,12 @@
 
 				{#each OFFER.features as feature (feature)}
 					<div class="inline-flex items-center gap-2 text-sm">
-						<CheckBold class="size-5 text-green" />{feature}
+						<CheckBold class="size-5 text-primary" />{feature}
 					</div>
 				{/each}
 
 				{#if hasActiveSubscription}
-					<div class="inline-flex items-center justify-center mt-4 w-full text-sm text-green">
+					<div class="inline-flex items-center justify-center mt-4 w-full text-sm text-primary">
 						You already have an active subscription.
 					</div>
 				{:else}

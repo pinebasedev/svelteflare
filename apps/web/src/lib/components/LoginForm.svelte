@@ -129,9 +129,9 @@
 			</Button.Root>
 
 			<div
-				class="font-normal mb-6 after:border-gray-400 text-xs relative text-center after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t"
+				class="font-normal mb-6 after:border-border text-xs relative text-center after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t"
 			>
-				<span class="bg-background text-gray-300 relative z-10 px-2">OR</span>
+				<span class="bg-background text-muted-foreground relative z-10 px-2">OR</span>
 			</div>
 
 			<Button.Root

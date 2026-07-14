@@ -41,16 +41,21 @@ If you haven't oriented to the repo yet, run `/project-orientation` first.
 
 ## Step 3: Show a plan, then implement
 
-Before writing code, output a numbered plan listing the exact files to create or modify. Let the user confirm or redirect. Example for a full-stack feature:
+Before writing code, work out the exact files to create or modify, then present the plan **in plain language** — the user is a non-technical founder. Describe what they will be able to see and do, not file paths or commands. Keep the technical breakdown for yourself. Example:
 
 ```
-Plan:
+Internal plan (not shown to the user):
 1. apps/api/src/db/schema.ts — add `note` table
 2. Run: pnpm --filter api generate:db  (new migration)
 3. apps/api/src/routes/notes.ts — create CRUD route
 4. apps/api/src/routes/index.ts — register /v1/notes
 5. apps/web/src/lib/forms/note-schema.ts — Zod schema
 6. apps/web/src/routes/notes/+page.svelte — list + create UI
+
+What you tell the user:
+"Here's what I'll build: a Notes page where you can create and view
+notes. Notes are saved to your app's database and only visible to
+signed-in users. Sound good?"
 ```
 
 Only proceed past this step once the user agrees.
@@ -86,6 +91,8 @@ c.var.isEntitled         // Boolean — paid user or free-tier allowed
 
 ## Step 5: Frontend implementation (apps/web)
 
+**Before writing any UI, follow the `ui-and-theme` skill.** All UI is built from `@repo/ui` components styled with semantic theme tokens (`bg-primary`, `text-muted-foreground`, …) — never Tailwind palette classes, hex/rgb/oklch literals, or arbitrary color values, and never raw `<button>`/`<input>`/`<select>` markup. Check `packages/ui/src/index.ts` before assuming a component is missing. `packages/ui/src/global.css` and `packages/ui/src/components` are theme-owned — do not touch them during feature work.
+
 ### Adding a page
 
 Create `apps/web/src/routes/<path>/+page.svelte`. The root layout loader already fetches `/v1/access` on every navigation, so layout data is always available:
@@ -101,7 +108,7 @@ For page-specific data, add a sibling `+page.ts` with a `load` function that cal
 
 1. Write a Zod schema in `apps/web/src/lib/forms/<name>-schema.ts`
 2. Use sveltekit-superforms with the Zod adapter on the page
-3. Use form components from `$lib/ui`: `<Form.Field>`, `<Form.Label>`, `<Form.FieldErrors>`, `<Input>`, `<Button>` etc.
+3. Use form components from `@repo/ui`: `<Form.Field>`, `<Form.Label>`, `<Form.FieldErrors>`, `<Input>`, `<Button>` etc. (see the `forms` skill)
 
 ### Calling the API
 
@@ -129,21 +136,12 @@ Follow the singleton runes class pattern in `apps/web/src/lib/state/settings.sve
 
 ## Step 6: Summarize changes
 
-After implementing, give the user a clear summary:
+After implementing, run any needed follow-up commands yourself (e.g. `pnpm --filter api migrate:local`), then summarize for the user in plain language — what changed from their point of view, not which files moved:
 
 ```
-Files created:
-  apps/api/src/routes/notes.ts
-  apps/api/migrations/0001_add_notes.sql
-  apps/web/src/lib/forms/note-schema.ts
-  apps/web/src/routes/notes/+page.svelte
-
-Files modified:
-  apps/api/src/db/schema.ts
-  apps/api/src/routes/index.ts
-
-Commands to run:
-  pnpm --filter api migrate:local   (apply DB migration locally)
-
-New env vars / bindings: none
+"Done! Your app now has a Notes page. You can create notes, see your
+list, and each note is saved privately to your account. Take a look
+at the preview and tell me if you'd like anything adjusted."
 ```
+
+Keep file paths, shell commands, and migration names out of the user-facing summary. If something needs the user's action (e.g. approving a change in the browser), state it as one simple step.

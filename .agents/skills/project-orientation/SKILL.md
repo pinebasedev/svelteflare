@@ -10,6 +10,8 @@ description: >
 
 # Svelteflare — Project Orientation
 
+This orientation is for you, the agent — don't recite it to the user. The user is a non-technical founder: when they ask about the project, translate to plain language (what the app does and where things stand, not ports, packages, or file paths). The non-negotiable UI/theme rules live in the root `AGENTS.md` — read them before any UI work.
+
 ## Architecture
 
 Two-layer Cloudflare stack:
@@ -43,10 +45,11 @@ Package names use the `@repo/*` workspace alias.
 
 ### UI Components
 - Shared library: `packages/ui/src/components/ui/` (shadcn-svelte / bits-ui)
-  - form, card, button, badge, input, label, switch, tooltip, sonner (toasts)
+  - ~57 components exported — read `packages/ui/src/index.ts` for the current list before building or installing anything
 - App-specific components: `apps/web/src/lib/components/`
 - Add new shadcn components: `pnpm --filter @repo/ui ui:add <component-name>`
 - Import alias: `@repo/ui` → `packages/ui/src` (configured in `apps/web/svelte.config.js`)
+- Styling: theme tokens only (`bg-primary`, `text-muted-foreground`, …) — no palette classes or color literals; see root `AGENTS.md` and the `ui-and-theme` skill
 
 ### Auth
 - Server config: `apps/api/src/auth.ts` — better-auth v1 with Stripe plugin + emailOTP

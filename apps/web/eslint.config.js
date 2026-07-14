@@ -1,8 +1,10 @@
 import config from '@repo/eslint-config/index.js';
+import themeColorGuard from '@repo/eslint-config/colors.js';
 import svelteConfig from './svelte.config.js';
 
 export default [
   ...config,
+  themeColorGuard,
   {
     files: ['**/*.svelte', '**/*.svelte.ts'],
     languageOptions: {

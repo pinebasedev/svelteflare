@@ -229,6 +229,8 @@ When embedding a form inside a Dialog, the form setup is identical — just plac
 </Select.Root>
 ```
 
+All form controls come from `@repo/ui` — never write raw `<textarea>`, `<select>`, `<input>`, or checkbox markup, even as a stopgap. Check `packages/ui/src/index.ts` first: most controls (including Textarea, Select, Checkbox) are already exported. Only if one is genuinely missing, install it:
+
 ## Installing missing shadcn components
 
 ```bash
