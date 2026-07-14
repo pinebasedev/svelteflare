@@ -2,5 +2,3 @@ BETTER_AUTH_SECRET=
 GOOGLE_CLIENT_SECRET=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
-# Email is sent via Cloudflare Email Workers (send_email binding — no token needed)
-# EMAIL_FROM_ADDRESS and EMAIL_FROM_NAME are set in wrangler.jsonc vars

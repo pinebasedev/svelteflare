@@ -1,0 +1,2 @@
+# Owned by wrangler (`just cf-typegen`); reformatting it breaks regeneration
+src/workerConfiguration.d.ts

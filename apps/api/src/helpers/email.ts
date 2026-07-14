@@ -1,3 +1,4 @@
+import { EmailMessage } from "cloudflare:email";
 import { createMimeMessage } from "mimetext";
 import type { AppBindings } from "../types";
 

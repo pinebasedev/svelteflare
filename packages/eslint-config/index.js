@@ -42,7 +42,17 @@ export default [
     }
   },
   {
-    rules: {}
+    rules: {
+      // Underscore prefix marks intentionally unused (e.g. destructuring to omit).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_'
+        }
+      ]
+    }
   },
   {
     files: ['**/*.ts'],

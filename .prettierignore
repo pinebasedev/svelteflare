@@ -1,6 +1,7 @@
 .DS_Store
 .svelte-kit
 node_modules
+apps/api/src/workerConfiguration.d.ts
 /build
 /package
 .env

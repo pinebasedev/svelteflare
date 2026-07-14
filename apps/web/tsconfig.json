@@ -7,7 +7,6 @@
     ".svelte-kit/ambient.d.ts",
     ".svelte-kit/non-ambient.d.ts",
     ".svelte-kit/types/**/$types.d.ts",
-    "../api/src/workerConfiguration.d.ts",
     "src/**/*.d.ts",
     "src/**/*.ts",
     "src/**/*.svelte",

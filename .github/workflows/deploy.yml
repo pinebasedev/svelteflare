@@ -78,6 +78,16 @@ jobs:
         if: steps.gate.outputs.configured == 'true'
         run: pnpm install --frozen-lockfile
 
+      # Gitignored local files that type generation and typechecking expect:
+      # .dev.vars gives `wrangler types` the secret *names* (never values);
+      # .env gives $env/static/public its exports (real values come from the
+      # committed .env.staging/.env.production at build time).
+      - name: Prepare config stand-ins from examples
+        if: steps.gate.outputs.configured == 'true'
+        run: |
+          cp apps/api/.dev.vars.example apps/api/.dev.vars
+          cp apps/web/.env.example apps/web/.env
+
       # Decide api / web / both. Change detection compares HEAD against the
       # last successfully deployed commit (pinebase-deploy-<env> tag) using
       # turbo's workspace graph. Any doubt => deploy both.
