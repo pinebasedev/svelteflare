@@ -51,8 +51,12 @@
 		window.history.replaceState(window.history.state, '', nextUrl.toString());
 
 		if (checkout === 'success') {
-			void invalidate('auth:session').then(() => {
-				if ((page.data as { isEntitled?: boolean }).isEntitled) onSuccess?.();
+			void invalidate('auth:session').then(async () => {
+				if ((page.data as { isEntitled?: boolean }).isEntitled) {
+					onSuccess?.();
+					toast.success("You're subscribed! Enjoy premium.");
+					await goto(resolve('/'));
+				}
 			});
 		}
 	});
@@ -71,7 +75,7 @@
 			const { error } = await authClient.subscription.upgrade({
 				plan: 'premium',
 				annual: isYearly,
-				successUrl: appUrl('/?checkout=success'),
+				successUrl: appUrl('/premium?checkout=success'),
 				cancelUrl: appUrl('/premium'),
 				returnUrl: appUrl('/premium')
 			});

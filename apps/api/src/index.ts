@@ -23,9 +23,9 @@ export const createApp = (options: AppTestOverrides = {}) => {
 
     return jsonError(
       c,
-      500,
-      getErrorCodeForStatus(500),
-      "Internal Server Error"
+      status,
+      getErrorCodeForStatus(status),
+      err instanceof HTTPException ? err.message : "Internal Server Error"
     );
   });
 

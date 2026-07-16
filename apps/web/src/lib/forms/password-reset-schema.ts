@@ -11,7 +11,9 @@ export const passwordResetFormSchema = z
       .regex(/[0-9]/, { message: 'Password must contain a number.' })
       .regex(/[^A-Za-z0-9]/, { message: 'Password must contain a special character.' }),
     confirmPassword: z.string(),
-    token: z.string()
+    token: z
+      .string()
+      .min(1, { message: 'This reset link is invalid or missing. Please request a new one.' })
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Passwords don't match.",

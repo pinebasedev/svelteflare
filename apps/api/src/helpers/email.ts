@@ -25,8 +25,19 @@ const sendEmail = async (
   try {
     const message = new EmailMessage(from, to, msg.asRaw());
     await env.EMAIL.send(message);
-  } catch {
-    console.log(`[dev email] to=${to} subject="${subject}"\n${text}`);
+  } catch (err) {
+    console.error(
+      JSON.stringify({
+        type: "email_send_error",
+        level: "error",
+        to,
+        subject,
+        error:
+          err instanceof Error
+            ? { name: err.name, message: err.message }
+            : { value: String(err) }
+      })
+    );
   }
 };
 

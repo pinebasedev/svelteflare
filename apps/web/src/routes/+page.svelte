@@ -2,6 +2,7 @@
 	import { invalidate } from '$app/navigation';
 	import { authClient } from '$lib/authClient';
 	import { Button, Card } from '@repo/ui';
+	import { toast } from 'svelte-sonner';
 
 	let { data } = $props();
 
@@ -9,8 +10,12 @@
 	const isEntitled = $derived(data.isEntitled);
 
 	const signOut = async () => {
-		await authClient.signOut();
-		await invalidate('auth:session');
+		try {
+			await authClient.signOut();
+			await invalidate('auth:session');
+		} catch {
+			toast.error('Could not sign out. Please try again.');
+		}
 	};
 </script>
 
