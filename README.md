@@ -1,6 +1,14 @@
 # Svelteflare
 
-A production-ready SvelteKit + Cloudflare SaaS boilerplate. Clone it, rename it, ship it.
+A production-ready SvelteKit + Cloudflare SaaS boilerplate and starter kit. Clone it, rename it, ship it.
+
+**[svelteflare.com](https://svelteflare.com)** · [github.com/pinebasedev/svelteflare](https://github.com/pinebasedev/svelteflare) · MIT licensed
+
+Svelteflare gives you a working SaaS skeleton — auth, subscriptions, a themed UI kit, and a typed API — on infrastructure that scales to zero and costs nothing until you have real users. You bring the product; the account system, billing, and deployment plumbing are already wired together and tested.
+
+## Who this is for
+
+You're comfortable with Svelte/TypeScript and want to skip the two weeks of boilerplate every SaaS needs before you can build the feature you actually care about: user accounts, subscriptions, a component library, and a deploy pipeline. If you'd rather review working code than read a tutorial, start with `apps/web/src/routes` after the quick start below.
 
 ## What's inside
 
@@ -14,15 +22,15 @@ A production-ready SvelteKit + Cloudflare SaaS boilerplate. Clone it, rename it,
 
 ## Stack
 
-| Layer     | Tech                                              |
-| --------- | ------------------------------------------------- |
-| Frontend  | Svelte 5 (runes), SvelteKit (static SPA + prerendered marketing site) |
-| API       | Hono on Cloudflare Workers                        |
-| Auth      | Better Auth (email OTP, Google OAuth, Stripe)     |
-| Database  | Drizzle ORM + Cloudflare D1                       |
-| Billing   | Stripe subscriptions                              |
-| Styling   | Tailwind v4 + shadcn-svelte with semantic tokens  |
-| Monorepo  | pnpm workspaces + Turborepo + just                |
+| Layer    | Tech                                                                  |
+| -------- | --------------------------------------------------------------------- |
+| Frontend | Svelte 5 (runes), SvelteKit (static SPA + prerendered marketing site) |
+| API      | Hono on Cloudflare Workers                                            |
+| Auth     | Better Auth (email OTP, Google OAuth, Stripe plugin)                  |
+| Database | Drizzle ORM + Cloudflare D1                                           |
+| Billing  | Stripe subscriptions                                                  |
+| Styling  | Tailwind v4 + shadcn-svelte with semantic tokens                      |
+| Monorepo | pnpm workspaces + Turborepo + just                                    |
 
 ## Monorepo layout
 
@@ -32,13 +40,19 @@ apps/
   api/         Hono Cloudflare Worker — auth, database, billing
   marketing/   Static, prerendered marketing site — delete or repurpose for your product
 packages/
-  ui/          Theme + component library (@repo/ui) — single source of truth for looks
-  eslint-config/, typescript-config/
+  ui/                  Theme + component library (@repo/ui) — single source of truth for how things look
+  eslint-config/       Shared ESLint rules, including the theme/color-token lint rule
+  typescript-config/   Shared tsconfig bases for Svelte apps and the Worker
 ```
 
-## Quick start
+## Requirements
 
-Requires [Node 24+](https://nodejs.org), [pnpm](https://pnpm.io), and [just](https://github.com/casey/just).
+- [Node 24](https://nodejs.org) (see `.nvmrc`)
+- [pnpm](https://pnpm.io) — the exact version is pinned via `packageManager` and Corepack
+- [just](https://github.com/casey/just) — task runner used for all common commands
+- A [Cloudflare](https://dash.cloudflare.com) account (free tier is enough) once you're ready to deploy
+
+## Quick start
 
 ```sh
 git clone https://github.com/pinebasedev/svelteflare.git my-app
@@ -50,45 +64,55 @@ just migrate-local   # create the local D1 database
 just dev             # marketing on :9001, web on :9002, api on :9003
 ```
 
-Fill in `apps/web/.env` for local dev:
+`apps/marketing` needs no configuration to run locally — it's a static site with no auth or API calls.
+
+### `apps/web/.env`
 
 ```sh
 PUBLIC_APP_URL=http://localhost:9002
 PUBLIC_API_URL=http://localhost:9003
 PUBLIC_BETTER_AUTH_URL=http://localhost:9003
-PUBLIC_GOOGLE_CLIENT_ID=   # only needed for Google login
+PUBLIC_GOOGLE_CLIENT_ID=   # only needed for "Sign in with Google"
 ```
 
-Secrets in `apps/api/.dev.vars` (`BETTER_AUTH_SECRET` is required; Stripe and Google keys are only needed when you want billing and social login):
+### `apps/api/.dev.vars`
 
 ```sh
-BETTER_AUTH_SECRET=   # openssl rand -base64 32
-GOOGLE_CLIENT_SECRET=
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
+BETTER_AUTH_SECRET=     # required — generate with: openssl rand -base64 32
+GOOGLE_CLIENT_SECRET=   # only needed for "Sign in with Google"
+STRIPE_SECRET_KEY=      # only needed for billing
+STRIPE_WEBHOOK_SECRET=  # only needed for billing
 ```
+
+You can run `just dev` with only `BETTER_AUTH_SECRET` set — Google login and billing are optional and can be added later without touching any other config.
 
 ## Commands
 
+Run `just` with no arguments to see every recipe, grouped. The most common ones:
+
 ```sh
-just dev              # all dev servers
-just check            # typecheck everything
-just lint             # ESLint + Prettier
-just migrate-local    # apply D1 migrations locally
-just generate         # generate migrations from the Drizzle schema
-just studio           # Drizzle Studio
-pnpm --filter @repo/api test
+just dev               # run all three apps together (web, api, marketing)
+just dev-web           # run a single app
+just check             # typecheck everything
+just lint              # ESLint + Prettier
+just format            # auto-format with Prettier
+
+just migrate-local     # apply D1 migrations to your local database
+just generate          # generate a new migration from the Drizzle schema
+just studio            # open Drizzle Studio against the local DB
+
+pnpm --filter @repo/api test   # run the API's Vitest suite
 ```
 
-Run `just` with no arguments to see every recipe.
+Build and deploy recipes follow the same `<action>-<app>-<environment>` shape, e.g. `just build-web`, `just deploy-api-staging`, `just deploy-marketing-production` — see the [Deploying](#deploying) section below.
 
 ## Theming
 
-The entire theme lives in `packages/ui/src/global.css` as CSS variables. Feature code only ever uses semantic classes (`bg-background`, `text-muted-foreground`, `bg-primary`, …) — a lint rule enforces this — so swapping the token values restyles all 57 components, light and dark mode, at once.
+The entire theme lives in `packages/ui/src/global.css` as CSS variables. Feature code only ever uses semantic classes (`bg-background`, `text-muted-foreground`, `bg-primary`, …) — an ESLint rule (`theme/no-hardcoded-colors`) enforces this — so swapping the token values restyles all 57 components, light and dark mode, at once. See `.agents/skills/ui-and-theme` for the full component and token reference.
 
 ## Deploying
 
-Each app is a Cloudflare Worker. After `wrangler login`:
+Each app is a separate Cloudflare Worker. After `wrangler login`:
 
 ```sh
 just migrate-staging
@@ -97,7 +121,17 @@ just deploy-web-staging
 just deploy-marketing-staging
 ```
 
-Production equivalents: `just deploy-*-production`. Set the API secrets with `wrangler secret put` and adjust the domains in each app's `wrangler.jsonc`.
+Production equivalents: `just deploy-*-production` (e.g. `just deploy-api-production`). Set the API's secrets with `wrangler secret put <NAME> --env <staging|production>`, and update the custom domains in each app's `wrangler.jsonc` before going live.
+
+## Working with an AI coding agent
+
+If you're extending this repo with Claude Code or a similar tool, read `AGENTS.md` first — it covers the non-negotiable theming rules — and the guides in `.agents/skills/` for feature work, forms, and auth/billing patterns.
+
+## About
+
+Svelteflare is an open-source project maintained by [Pinebase](https://github.com/pinebasedev). It exists so developers don't have to rebuild auth, billing, and UI infrastructure from scratch for every new SaaS idea — clone it, make it yours, and spend your time on the product instead.
+
+Questions or ideas? Open an issue on [GitHub](https://github.com/pinebasedev/svelteflare/issues).
 
 ## License
 
