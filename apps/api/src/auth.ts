@@ -47,12 +47,16 @@ export const getAuth = (
               name: currentPlan.name,
               priceId: currentPlan.priceId,
               annualDiscountPriceId: currentPlan.annualDiscountPriceId,
-              freeTrial: {
-                days: currentPlan.freeTrialDays,
-                onTrialStart: async () => {},
-                onTrialEnd: async () => {},
-                onTrialExpired: async () => {}
-              }
+              ...(currentPlan.freeTrialDays > 0
+                ? {
+                    freeTrial: {
+                      days: currentPlan.freeTrialDays,
+                      onTrialStart: async () => {},
+                      onTrialEnd: async () => {},
+                      onTrialExpired: async () => {}
+                    }
+                  }
+                : {})
             })) as StripePlan[];
           }
         }
