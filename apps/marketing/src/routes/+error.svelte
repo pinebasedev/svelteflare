@@ -4,10 +4,10 @@
 </script>
 
 <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16 lg:px-6 text-center">
-	<h1 class="mb-4 text-7xl tracking-tight lg:text-9xl">
+	<h1 class="mb-4 text-7xl tracking-tight font-semibold lg:text-9xl">
 		{page.status}
 	</h1>
-	<p class="mb-4 text-4xl">
+	<p class="mb-4 text-4xl font-semibold">
 		{page.error?.message}
 	</p>
 	<p class="mb-8 text-lg">

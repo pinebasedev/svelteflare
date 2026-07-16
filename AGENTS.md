@@ -1,6 +1,6 @@
 # Agent Rules for This Project
 
-This is a Svelteflare app: a pnpm/Turbo monorepo. `apps/web` is a SvelteKit SPA that contains all UI and routing. `apps/api` is a Hono Cloudflare Worker that contains all server logic (auth, database, billing). `packages/ui` (imported as `@repo/ui`) is the theme and component library — the single source of truth for how anything looks.
+This is a Svelteflare app: a pnpm/Turbo monorepo. `apps/web` is a SvelteKit SPA that contains all UI and routing. `apps/api` is a Hono Cloudflare Worker that contains all server logic (auth, database, billing). `apps/marketing` is a small prerendered SvelteKit site (the public marketing page) that follows the same theme rules. `packages/ui` (imported as `@repo/ui`) is the theme and component library — the single source of truth for how anything looks.
 
 ## Theme fidelity (non-negotiable)
 

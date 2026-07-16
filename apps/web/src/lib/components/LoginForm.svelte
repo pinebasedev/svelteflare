@@ -137,7 +137,8 @@
 			<Button.Root
 				onclick={signInWithGoogle}
 				disabled={$submitting}
-				class="bg-secondary-background text-secondary-foreground text-sm w-full"
+				variant="secondary"
+				class="text-sm w-full"
 			>
 				<GoogleIcon />
 				Continue with Google

@@ -26,6 +26,11 @@ dev-web:
 dev-api:
   pnpm turbo dev --filter=@repo/api
 
+# Start the marketing site development server
+[group('1. dev')]
+dev-marketing:
+  pnpm turbo dev --filter=@repo/marketing
+
 # Start all dev servers
 [group('1. dev')]
 dev:
@@ -45,6 +50,11 @@ build-web:
 [group('2. build')]
 build-api:
   pnpm turbo build --filter=@repo/api
+
+# Build the marketing site
+[group('2. build')]
+build-marketing:
+  pnpm turbo build --filter=@repo/marketing
 
 # Build everything
 [group('2. build')]
@@ -75,6 +85,16 @@ deploy-api-staging:
 [group('3. deploy')]
 deploy-api-production:
   pnpm turbo deploy:production --filter=@repo/api
+
+# Deploy the marketing site (staging)
+[group('3. deploy')]
+deploy-marketing-staging:
+  pnpm turbo deploy:staging --filter=@repo/marketing
+
+# Deploy the marketing site (production)
+[group('3. deploy')]
+deploy-marketing-production:
+  pnpm turbo deploy:production --filter=@repo/marketing
 
 
 # ================================================================= #

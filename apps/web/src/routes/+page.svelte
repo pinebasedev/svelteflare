@@ -42,11 +42,5 @@
 				<Button.Root onclick={signOut} variant="outline" class="flex-1">Sign out</Button.Root>
 			</Card.Footer>
 		</Card.Root>
-	{:else}
-		<div class="text-center flex flex-col gap-4">
-			<h1 class="text-4xl font-sans font-semibold">YourApp</h1>
-			<p class="text-foreground/60">Your app description goes here.</p>
-			<Button.Root href="/login">Get started</Button.Root>
-		</div>
 	{/if}
 </div>
