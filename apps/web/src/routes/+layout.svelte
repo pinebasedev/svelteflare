@@ -19,7 +19,7 @@
 
 <svelte:head>
 	<link rel="canonical" href={page.data.canonical_url ?? `${PUBLIC_APP_URL}${page.url.pathname}`} />
-	<title>{page.data.seoTitle ?? 'YourApp'}</title>
+	<title>{page.data.seoTitle ?? 'Demo App'}</title>
 	<meta name="description" content={page.data.seoDescription} />
 
 	<meta property="og:title" content={page.data.seoTitle} />

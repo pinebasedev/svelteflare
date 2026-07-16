@@ -44,8 +44,8 @@
     "PUBLIC_BETTER_AUTH_URL": "http://localhost:9003",
     "PUBLIC_ORIGIN_ALLOWLIST": "http://localhost:9002",
     "PUBLIC_GOOGLE_CLIENT_ID": "",
-    "EMAIL_FROM_ADDRESS": "hello@yourdomain.com",
-    "EMAIL_FROM_NAME": "YourApp"
+    "EMAIL_FROM_ADDRESS": "hello@example.com",
+    "EMAIL_FROM_NAME": "Demo App"
   },
   "env": {
     "production": {
@@ -93,8 +93,8 @@
         "PUBLIC_BETTER_AUTH_URL": "https://api.yourdomain.com",
         "PUBLIC_ORIGIN_ALLOWLIST": "https://app.yourdomain.com",
         "PUBLIC_GOOGLE_CLIENT_ID": "",
-        "EMAIL_FROM_ADDRESS": "hello@yourdomain.com",
-        "EMAIL_FROM_NAME": "YourApp"
+        "EMAIL_FROM_ADDRESS": "hello@example.com",
+        "EMAIL_FROM_NAME": "Demo App"
       }
     },
     "staging": {
@@ -116,8 +116,8 @@
         "PUBLIC_BETTER_AUTH_URL": "https://sf-api-staging.<YOUR_SUBDOMAIN>.workers.dev",
         "PUBLIC_ORIGIN_ALLOWLIST": "https://sf-web-staging.<YOUR_SUBDOMAIN>.workers.dev",
         "PUBLIC_GOOGLE_CLIENT_ID": "",
-        "EMAIL_FROM_ADDRESS": "hello@yourdomain.com",
-        "EMAIL_FROM_NAME": "YourApp"
+        "EMAIL_FROM_ADDRESS": "hello@example.com",
+        "EMAIL_FROM_NAME": "Demo App"
       }
     },
     "development": {
@@ -157,8 +157,8 @@
         "PUBLIC_BETTER_AUTH_URL": "http://localhost:9003",
         "PUBLIC_ORIGIN_ALLOWLIST": "http://localhost:9002",
         "PUBLIC_GOOGLE_CLIENT_ID": "",
-        "EMAIL_FROM_ADDRESS": "hello@yourdomain.com",
-        "EMAIL_FROM_NAME": "YourApp"
+        "EMAIL_FROM_ADDRESS": "hello@example.com",
+        "EMAIL_FROM_NAME": "Demo App"
       }
     }
   }

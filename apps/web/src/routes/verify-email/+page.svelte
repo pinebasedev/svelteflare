@@ -59,7 +59,7 @@
 
 <div class="fixed inset-0 overflow-y-auto px-4 py-10">
 	<div class="min-h-full flex flex-col gap-6 items-center justify-center">
-		<h1 class="font-sans text-2xl font-semibold">YourApp</h1>
+		<h1 class="font-sans text-2xl font-semibold">Demo App</h1>
 		<Card.Root class="mx-auto w-full sm:w-sm">
 			<Card.Header>
 				<Card.Title>Check your email</Card.Title>

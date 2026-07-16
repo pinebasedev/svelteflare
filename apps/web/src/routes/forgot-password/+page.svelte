@@ -40,7 +40,7 @@
 
 <div class="fixed inset-0 overflow-y-auto px-4 py-10 bg-background">
 	<div class="min-h-full flex flex-col gap-6 items-center justify-center">
-		<h1 class="text-2xl">YourApp</h1>
+		<h1 class="text-2xl">Demo App</h1>
 		<Card.Root class="w-full sm:w-sm">
 			<Card.Header>
 				<Card.Title>Reset your password</Card.Title>

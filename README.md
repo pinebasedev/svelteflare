@@ -28,7 +28,7 @@ A production-ready SvelteKit + Cloudflare SaaS boilerplate. Clone it, rename it,
 
 ```
 apps/
-  web/         SvelteKit SPA — the app template (search-and-replace "YourApp")
+  web/         SvelteKit SPA — the app template (search-and-replace "Demo App")
   api/         Hono Cloudflare Worker — auth, database, billing
   marketing/   Static, prerendered marketing site — delete or repurpose for your product
 packages/

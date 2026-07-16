@@ -10,8 +10,8 @@ const DEFAULT_ACCESS: AccessPayload = {
 };
 
 const DEFAULT_SEO = {
-  seoTitle: 'YourApp',
-  seoDescription: 'Your app description.',
+  seoTitle: 'Demo App',
+  seoDescription: 'Demo App description.',
   ogImage: null
 };
 
