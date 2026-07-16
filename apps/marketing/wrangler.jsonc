@@ -17,7 +17,7 @@
       "name": "sf-marketing-production",
       "routes": [
         {
-          "pattern": "yourdomain.com",
+          "pattern": "svelteflare.com",
           "custom_domain": true
         }
       ],

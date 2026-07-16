@@ -9,7 +9,7 @@ pnpm install
 cp apps/web/.env.example apps/web/.env
 cp apps/api/.dev.vars.example apps/api/.dev.vars
 just migrate-local   # create the local D1 database
-just dev             # web on :9002, api on :9003`;
+just dev             # marketing on :9001, web on :9002, api on :9003`;
 
 	let copied = $state(false);
 

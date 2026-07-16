@@ -10,12 +10,13 @@ A production-ready SvelteKit + Cloudflare SaaS boilerplate. Clone it, rename it,
 - **Typed end to end** — the SvelteKit client consumes the Hono API through a typed RPC client; rename a field on the server and the frontend fails to compile
 - **Hardened API** — CORS, CSRF protection, rate limiting, secure headers, request timeouts, and structured errors as middleware on every request
 - **Cloudflare-native** — Workers, D1 (SQLite), and Cloudflare Email; no servers to manage and a generous free tier
+- **Static marketing site** — a prerendered one-pager (`apps/marketing`) built from the same `@repo/ui` kit, ready to swap in your own copy
 
 ## Stack
 
 | Layer     | Tech                                              |
 | --------- | ------------------------------------------------- |
-| Frontend  | Svelte 5 (runes), SvelteKit (static SPA)          |
+| Frontend  | Svelte 5 (runes), SvelteKit (static SPA + prerendered marketing site) |
 | API       | Hono on Cloudflare Workers                        |
 | Auth      | Better Auth (email OTP, Google OAuth, Stripe)     |
 | Database  | Drizzle ORM + Cloudflare D1                       |
@@ -29,7 +30,7 @@ A production-ready SvelteKit + Cloudflare SaaS boilerplate. Clone it, rename it,
 apps/
   web/         SvelteKit SPA — the app template (search-and-replace "YourApp")
   api/         Hono Cloudflare Worker — auth, database, billing
-  marketing/   This project's one-page site — delete or repurpose for your product
+  marketing/   Static, prerendered marketing site — delete or repurpose for your product
 packages/
   ui/          Theme + component library (@repo/ui) — single source of truth for looks
   eslint-config/, typescript-config/

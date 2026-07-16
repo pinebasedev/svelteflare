@@ -20,6 +20,11 @@
 			question: 'How do I change the look?',
 			answer:
 				'The whole theme is CSS variables in one file: packages/ui/src/global.css. Swap the token values and all 57 components — light and dark mode — update at once.'
+		},
+		{
+			question: 'Does it come with a marketing site?',
+			answer:
+				'Yes — apps/marketing is a prerendered SvelteKit site built from the same @repo/ui components as the app. Swap in your own copy and ship it, or delete it if you don’t need one.'
 		}
 	];
 </script>

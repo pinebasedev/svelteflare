@@ -24,7 +24,7 @@
 			icon: PaletteIcon,
 			title: '57-component UI kit',
 			description:
-				'A themed shadcn-svelte library with semantic tokens and automatic dark mode. Change the theme in one file, every screen follows.'
+				'Real shadcn-svelte components, fully styleable via semantic tokens with automatic dark mode. Change the theme in one file, every screen follows.'
 		},
 		{
 			icon: BracesIcon,

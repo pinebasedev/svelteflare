@@ -4,6 +4,7 @@
 	import CloudflareWorkersIcon from '~icons/simple-icons/cloudflareworkers';
 	import DrizzleIcon from '~icons/simple-icons/drizzle';
 	import HonoIcon from '~icons/simple-icons/hono';
+	import ShadcnIcon from '~icons/simple-icons/shadcnui';
 	import StripeIcon from '~icons/simple-icons/stripe';
 	import SvelteIcon from '~icons/simple-icons/svelte';
 	import TailwindcssIcon from '~icons/simple-icons/tailwindcss';
@@ -16,6 +17,7 @@
 		{ label: 'Drizzle', icon: DrizzleIcon },
 		{ label: 'Cloudflare D1', icon: CloudflareIcon },
 		{ label: 'Stripe', icon: StripeIcon },
+		{ label: 'shadcn-svelte', icon: ShadcnIcon },
 		{ label: 'Tailwind v4', icon: TailwindcssIcon },
 		{ label: 'Cloudflare Workers', icon: CloudflareWorkersIcon }
 	];
@@ -23,7 +25,7 @@
 
 <section class="border-y border-border bg-muted/40">
 	<ul
-		class="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 py-6 text-sm text-muted-foreground"
+		class="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 py-6 text-sm text-muted-foreground"
 	>
 		{#each stack as item (item.label)}
 			<li class="flex items-center gap-2">
