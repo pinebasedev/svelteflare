@@ -1,5 +1,6 @@
 {
   "name": "svelteflare",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "turbo run dev",

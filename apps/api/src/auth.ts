@@ -77,7 +77,7 @@ export const getAuth = (
             const existing = await db
               .select({ emailVerified: userTable.emailVerified })
               .from(userTable)
-              .where(eq(userTable.email, email))
+              .where(eq(userTable.email, email.toLowerCase()))
               .get();
             if (existing?.emailVerified) {
               throw new APIError("UNPROCESSABLE_ENTITY", {

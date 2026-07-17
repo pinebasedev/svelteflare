@@ -7,8 +7,8 @@
 	import { authClient } from '$lib/authClient';
 	import { Badge, Button, Card, Switch } from '@repo/ui';
 	import { toast } from 'svelte-sonner';
-	import CheckBold from '~icons/ph/check-bold';
-	import ArrowLeftBold from '~icons/ph/arrow-left-bold';
+	import CheckIcon from '~icons/lucide/check';
+	import ArrowLeftIcon from '~icons/lucide/arrow-left';
 
 	type Props = {
 		onSuccess?: () => void;
@@ -115,7 +115,7 @@
 
 				{#each OFFER.features as feature (feature)}
 					<div class="inline-flex items-center gap-2 text-sm">
-						<CheckBold class="size-5 text-primary" />{feature}
+						<CheckIcon class="size-5 text-primary" />{feature}
 					</div>
 				{/each}
 
@@ -139,7 +139,7 @@
 					size="sm"
 					class="inline-flex items-center gap-1 p-0 text-xs"
 				>
-					<ArrowLeftBold class="size-4!" />Go back
+					<ArrowLeftIcon class="size-4!" />Go back
 				</Button.Root>
 			</div>
 		</Card.Content>

@@ -6,7 +6,7 @@
 	import { toast } from 'svelte-sonner';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
-	import ArrowLeftBold from '~icons/ph/arrow-left-bold';
+	import ArrowLeftIcon from '~icons/lucide/arrow-left';
 
 	const initialData = { email: '' };
 
@@ -74,7 +74,7 @@
 						size="sm"
 						class="inline-flex items-center gap-1 p-0 text-xs"
 					>
-						<ArrowLeftBold class="size-4!" />Go back
+						<ArrowLeftIcon class="size-4!" />Go back
 					</Button.Root>
 				</div>
 			</Card.Content>
