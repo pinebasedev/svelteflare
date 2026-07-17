@@ -1,13 +1,12 @@
-# Pinebase publishing pipeline.
+# Deploy pipeline.
 #
-# Managed by Pinebase — do not edit or delete this file, and do not touch the
-# pinebase-deploy-* tags it maintains (they record the last deployed commit
-# per environment and drive change detection).
+# The pinebase-deploy-<env> tags record the last deployed commit per
+# environment and drive change detection — leave them to the pipeline.
 #
 # Pushes to `staging` publish the preview app; pushes to `main` publish the
-# live app (reached via Pinebase's promote flow). Until Pinebase has stored
-# the Cloudflare secrets on this repository the pipeline exits green without
-# deploying, so early template/theme commits never surface as failures.
+# live app. Until the Cloudflare secrets (CLOUDFLARE_API_TOKEN /
+# CLOUDFLARE_ACCOUNT_ID) are stored on this repository the pipeline exits
+# green without deploying, so early commits never surface as failures.
 name: Deploy
 
 on:
@@ -88,6 +87,10 @@ jobs:
           cp apps/api/.dev.vars.example apps/api/.dev.vars
           cp apps/web/.env.example apps/web/.env
 
+      # NOTE: apps/marketing is NOT deployed by this pipeline — only the API
+      # and web app are. Deploy the marketing site manually with
+      # `just deploy-marketing-staging` / `just deploy-marketing-production`.
+      #
       # Decide api / web / both. Change detection compares HEAD against the
       # last successfully deployed commit (pinebase-deploy-<env> tag) using
       # turbo's workspace graph. Any doubt => deploy both.
