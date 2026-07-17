@@ -14,30 +14,30 @@ description: >
 
 # UI and Theme
 
-Build all UI from **shadcn-svelte components** and **theme CSS variables only**. Never use raw hex/rgb colors, Tailwind palette classes, or arbitrary color values — the app has a founder-approved theme, and every screen must look like it belongs to it.
+Build all UI from **shadcn-svelte components** and the shared theme system. The theme includes semantic CSS variables in `packages/ui/src/global.css` and the visual implementations in `packages/ui/src/components/**/*.svelte`. Never use raw hex/rgb colors, Tailwind palette classes, or arbitrary color values — the app has a founder-approved theme, and every screen must look like it belongs to it.
 
 ## Allowed vs forbidden styling
 
-| ❌ Never | ✅ Instead |
-|---|---|
-| `bg-blue-500`, `text-green-500`, `bg-zinc-900`, `bg-white`, `text-black` | `bg-primary`, `text-primary`, `bg-card`, `bg-background`, `text-foreground` |
-| `bg-[#1e40af]`, `text-[oklch(0.6 0.2 30)]`, `border-[rgb(30,40,50)]` | a semantic token utility: `bg-secondary`, `border-border`, … |
-| `style="color: #333"`, `color: red` in `<style>` blocks | token utilities, or `var(--muted-foreground)` etc. in CSS |
-| `text-green` / `bg-amber` (token doesn't exist) | check `packages/ui/src/global.css` for real tokens first |
-| success/warning states via palette colors | `text-primary`, `text-destructive`, `text-muted-foreground`, `bg-primary/10` |
+| ❌ Never                                                                 | ✅ Instead                                                                   |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| `bg-blue-500`, `text-green-500`, `bg-zinc-900`, `bg-white`, `text-black` | `bg-primary`, `text-primary`, `bg-card`, `bg-background`, `text-foreground`  |
+| `bg-[#1e40af]`, `text-[oklch(0.6 0.2 30)]`, `border-[rgb(30,40,50)]`     | a semantic token utility: `bg-secondary`, `border-border`, …                 |
+| `style="color: #333"`, `color: red` in `<style>` blocks                  | token utilities, or `var(--muted-foreground)` etc. in CSS                    |
+| `text-green` / `bg-amber` (token doesn't exist)                          | check `packages/ui/src/global.css` for real tokens first                     |
+| success/warning states via palette colors                                | `text-primary`, `text-destructive`, `text-muted-foreground`, `bg-primary/10` |
 
 Non-color arbitrary values (`w-[420px]`, `grid-cols-[1fr_2fr]`) are fine. Lint enforces the color rules (`theme/no-hardcoded-colors`) and fails `just check` — if lint flags a color, replace it with a token; never suppress the error.
 
 ## Stack at a glance
 
-| Layer | Detail |
-|---|---|
-| Component library | shadcn-svelte (style: **vega**), built on bits-ui primitives |
-| CSS framework | Tailwind CSS **v4** (no `tailwind.config.js` — all config lives in CSS) |
-| Token system | CSS custom properties in `packages/ui/src/global.css`, bridged via `@theme inline` |
-| Dark mode | Class-based (`.dark` on `<html>`), managed by `mode-watcher` |
-| Icons | `unplugin-icons` — import as `~icons/lucide/<name>` |
-| Fonts | Inter Variable (sans), Geist Mono (mono) |
+| Layer             | Detail                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| Component library | shadcn-svelte (style: **vega**), built on bits-ui primitives                       |
+| CSS framework     | Tailwind CSS **v4** (no `tailwind.config.js` — all config lives in CSS)            |
+| Token system      | CSS custom properties in `packages/ui/src/global.css`, bridged via `@theme inline` |
+| Dark mode         | Class-based (`.dark` on `<html>`), managed by `mode-watcher`                       |
+| Icons             | `unplugin-icons` — import as `~icons/lucide/<name>`                                |
+| Fonts             | Inter Variable (sans), Geist Mono (mono)                                           |
 
 ## Using components
 
@@ -70,7 +70,7 @@ Components live in `packages/ui` and are imported by the web app as `@repo/ui`.
 
 ### Installed components
 
-Read `packages/ui/src/index.ts` for the current list — roughly 57 components are already exported (Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Calendar, Chart, Checkbox, Command, DataTable, Dialog, Drawer, DropdownMenu, Form, Input, Label, Pagination, Popover, Select, Sheet, Sidebar, Skeleton, Slider, Switch, Table, Tabs, Textarea, Toggle, Tooltip, and more). **Always check that export list before installing anything or building a component by hand — what you need almost certainly already exists.**
+Read `packages/ui/src/index.ts` for the current list — 56 components are already exported (Accordion, Alert, AlertDialog, Avatar, Badge, Button, Card, Calendar, Chart, Checkbox, Command, DataTable, Dialog, Drawer, DropdownMenu, Form, Input, Label, Pagination, Popover, Select, Sheet, Sidebar, Skeleton, Slider, Switch, Table, Tabs, Textarea, Toggle, Tooltip, and more). **Always check that export list before installing anything or building a component by hand — what you need almost certainly already exists.**
 
 ### Installing a missing component
 
@@ -121,23 +121,23 @@ All semantic color tokens are CSS custom properties. Use them via Tailwind utili
 
 ### Core palette
 
-| Token | Light | Dark | Use for |
-|---|---|---|---|
-| `--background` | white | near-black | page background |
-| `--foreground` | near-black | white | body text |
-| `--card` | white | dark-gray | card surfaces |
-| `--card-foreground` | near-black | white | text on cards |
-| `--primary` | near-black | white | primary actions |
-| `--primary-foreground` | white | near-black | text on primary |
-| `--secondary` | light-gray | dark-gray | secondary actions |
-| `--muted` | light-gray | dark-gray | subtle backgrounds |
-| `--muted-foreground` | medium-gray | medium-gray | placeholder/helper text |
-| `--accent` | light-gray | dark-gray | hover states |
-| `--destructive` | red | red | errors/danger |
-| `--border` | light-gray | white/10% | borders |
-| `--input` | light-gray | white/15% | input borders |
-| `--ring` | near-black | gray | focus rings |
-| `--sidebar` | off-white | dark-gray | sidebar surface |
+| Token                  | Light       | Dark        | Use for                 |
+| ---------------------- | ----------- | ----------- | ----------------------- |
+| `--background`         | white       | near-black  | page background         |
+| `--foreground`         | near-black  | white       | body text               |
+| `--card`               | white       | dark-gray   | card surfaces           |
+| `--card-foreground`    | near-black  | white       | text on cards           |
+| `--primary`            | near-black  | white       | primary actions         |
+| `--primary-foreground` | white       | near-black  | text on primary         |
+| `--secondary`          | light-gray  | dark-gray   | secondary actions       |
+| `--muted`              | light-gray  | dark-gray   | subtle backgrounds      |
+| `--muted-foreground`   | medium-gray | medium-gray | placeholder/helper text |
+| `--accent`             | light-gray  | dark-gray   | hover states            |
+| `--destructive`        | red         | red         | errors/danger           |
+| `--border`             | light-gray  | white/10%   | borders                 |
+| `--input`              | light-gray  | white/15%   | input borders           |
+| `--ring`               | near-black  | gray        | focus rings             |
+| `--sidebar`            | off-white   | dark-gray   | sidebar surface         |
 
 This table is a summary — the authoritative token list is the `:root` block of `packages/ui/src/global.css` (it also defines `chart-1`…`chart-5`, the `sidebar-*` family, radius, and fonts). Read it before concluding a token doesn't exist. The values differ per theme; never assume specific colors — the tokens are the contract.
 
@@ -165,19 +165,21 @@ This table is a summary — the authoritative token list is the `:root` block of
 
 ## Customizing the theme
 
-**⚠️ Theme work only — not feature work.** `packages/ui/src/global.css` and `packages/ui/src/components` are theme-owned. Edit them ONLY when the user explicitly asks to change the theme or brand (through the theme workflow), never as a side effect of building a feature. During feature work, use existing tokens exclusively. And never invent color values yourself: when the user wants new colors, use the exact values they provide, or show options and let them choose.
+**⚠️ Theme work only — not feature work.** `packages/ui/src/global.css` and `packages/ui/src/components` are theme-owned. Edit them ONLY when the user explicitly asks to change the theme or brand through the theme workflow, never as a side effect of building a feature. A complete Custom design must meaningfully restyle `global.css` and every visual component `.svelte` file while preserving exports, props, events, accessibility, state, and behavior. Comments, whitespace, and equivalent no-op changes do not count. During feature work, use existing tokens exclusively. Never invent color values: use the exact values the user provides, or show options and let them choose.
+
+Before Custom design approval, run the app and review the actual feature and existing product surfaces at `http://localhost:9002` across interactions, responsive states, and light/dark appearance. Do not create a separate theme showcase route. The MCP finalization gate independently compares every visual component with the pre-design baseline and rejects incomplete code coverage.
 
 Tokens live in `packages/ui/src/global.css`. Edit `:root` (light) and `.dark` blocks using oklch values.
 
 ```css
 :root {
-  --primary: oklch(0.45 0.18 250);           /* blue-ish primary */
+  --primary: oklch(0.45 0.18 250); /* blue-ish primary */
   --primary-foreground: oklch(0.985 0 0);
-  --radius: 0.75rem;                          /* rounder corners */
+  --radius: 0.75rem; /* rounder corners */
 }
 
 .dark {
-  --primary: oklch(0.65 0.18 250);           /* lighter in dark mode */
+  --primary: oklch(0.65 0.18 250); /* lighter in dark mode */
 }
 ```
 
@@ -185,7 +187,7 @@ To add a brand color as a new token (again: only when the user explicitly provid
 
 ```css
 /* In :root / .dark */
---brand: oklch(0.55 0.20 260);
+--brand: oklch(0.55 0.2 260);
 --brand-foreground: oklch(0.98 0 0);
 
 /* In @theme inline block */
@@ -236,6 +238,7 @@ Always use `unplugin-icons` — never install or import from `lucide-svelte` or 
 Browse available icons at lucide.dev. The import path is always `~icons/lucide/<kebab-name>`.
 
 **Wrong** — do not do this:
+
 ```svelte
 import { Moon } from 'lucide-svelte'   // ❌ wrong package
 ```
@@ -340,13 +343,13 @@ Uses sveltekit-superforms + formsnap + zod. See `build-feature` skill for the fu
 
 ## Where things live
 
-| What | Location |
-|---|---|
+| What                                  | Location                                |
+| ------------------------------------- | --------------------------------------- |
 | Shared components (used across pages) | `packages/ui/src/components/ui/<name>/` |
-| Shared component exports | `packages/ui/src/index.ts` |
-| Theme tokens | `packages/ui/src/global.css` |
-| Page-local components | `apps/web/src/lib/components/` |
-| Global CSS (web app) | `apps/web/src/main.css` |
-| App-level layout | `apps/web/src/routes/+layout.svelte` |
+| Shared component exports              | `packages/ui/src/index.ts`              |
+| Theme tokens                          | `packages/ui/src/global.css`            |
+| Page-local components                 | `apps/web/src/lib/components/`          |
+| Global CSS (web app)                  | `apps/web/src/main.css`                 |
+| App-level layout                      | `apps/web/src/routes/+layout.svelte`    |
 
 When a component is needed in one page only, put it in `apps/web/src/lib/components/`. When it'll be reused across multiple pages or in a future project, put it in `packages/ui`.

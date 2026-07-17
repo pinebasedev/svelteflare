@@ -14,7 +14,7 @@ You're comfortable with Svelte/TypeScript and want to skip the two weeks of boil
 
 - **Auth that just works** — email + password with OTP verification, Google OAuth, and password reset via [Better Auth](https://better-auth.com)
 - **Stripe subscriptions** — plans, checkout, webhooks, and entitlement checks; gate any route or feature on an active subscription
-- **57-component UI kit** — a themed [shadcn-svelte](https://shadcn-svelte.com) library (`@repo/ui`) with semantic tokens and automatic dark mode
+- **56-component UI kit** — a themed [shadcn-svelte](https://shadcn-svelte.com) library (`@repo/ui`) with semantic tokens and automatic dark mode
 - **Typed end to end** — the SvelteKit client consumes the Hono API through a typed RPC client; rename a field on the server and the frontend fails to compile
 - **Hardened API** — CORS, CSRF protection, rate limiting, secure headers, request timeouts, and structured errors as middleware on every request
 - **Cloudflare-native** — Workers, D1 (SQLite), and Cloudflare Email; no servers to manage and a generous free tier
@@ -108,7 +108,7 @@ Build and deploy recipes follow the same `<action>-<app>-<environment>` shape, e
 
 ## Theming
 
-The entire theme lives in `packages/ui/src/global.css` as CSS variables. Feature code only ever uses semantic classes (`bg-background`, `text-muted-foreground`, `bg-primary`, …) — an ESLint rule (`theme/no-hardcoded-colors`) enforces this — so swapping the token values restyles all 57 components, light and dark mode, at once. See `.agents/skills/ui-and-theme` for the full component and token reference.
+The theme is the combination of semantic variables in `packages/ui/src/global.css` and the visual implementations in `packages/ui/src/components`. Feature code uses semantic classes (`bg-background`, `text-muted-foreground`, `bg-primary`, …), while a Custom design may also change component shape, spacing, borders, shadows, typography, and interaction treatment without changing component APIs or behavior. Design review happens in the actual locally running product, using its real features and surfaces. See `.agents/skills/ui-and-theme` for the full contract.
 
 ## Deploying
 
