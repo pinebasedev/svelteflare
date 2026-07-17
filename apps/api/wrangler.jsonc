@@ -60,7 +60,7 @@
       "preview_urls": false,
       "routes": [
         {
-          "pattern": "api.yourdomain.com",
+          "pattern": "api.example.com",
           "custom_domain": true
         }
       ],
@@ -101,9 +101,9 @@
         }
       ],
       "vars": {
-        "PUBLIC_API_URL": "https://api.yourdomain.com",
-        "PUBLIC_BETTER_AUTH_URL": "https://api.yourdomain.com",
-        "PUBLIC_ORIGIN_ALLOWLIST": "https://app.yourdomain.com",
+        "PUBLIC_API_URL": "https://api.example.com",
+        "PUBLIC_BETTER_AUTH_URL": "https://api.example.com",
+        "PUBLIC_ORIGIN_ALLOWLIST": "https://app.example.com",
         "PUBLIC_GOOGLE_CLIENT_ID": "",
         "EMAIL_FROM_ADDRESS": "hello@example.com",
         "EMAIL_FROM_NAME": "Demo App"
