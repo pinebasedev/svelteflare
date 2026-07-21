@@ -15,9 +15,9 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: Which apps to deploy
+        description: Which app to deploy
         type: choice
-        options: [auto, api, web, both]
+        options: [auto, api, web, marketing, all]
         default: auto
 
 # One deploy at a time per environment; queued, never cancelled mid-deploy.
@@ -86,22 +86,25 @@ jobs:
         run: |
           cp apps/api/.dev.vars.example apps/api/.dev.vars
           cp apps/web/.env.example apps/web/.env
+          if [ -f apps/marketing/.env.example ]; then
+            cp apps/marketing/.env.example apps/marketing/.env
+          fi
 
-      # NOTE: apps/marketing is NOT deployed by this pipeline — only the API
-      # and web app are. Deploy the marketing site manually with
-      # `just deploy-marketing-staging` / `just deploy-marketing-production`.
-      #
-      # Decide api / web / both. Change detection compares HEAD against the
-      # last successfully deployed commit (pinebase-deploy-<env> tag) using
-      # turbo's workspace graph. Any doubt => deploy both.
+      # Decide api / web / marketing. Change detection compares HEAD against
+      # the last successfully deployed commit (pinebase-deploy-<env> tag)
+      # using turbo's workspace graph. Any doubt => deploy all three apps.
       - name: Decide what to deploy
         if: steps.gate.outputs.configured == 'true'
         id: plan
         run: |
           WANT="${{ github.event.inputs.deploy || 'auto' }}"
-          API=true; WEB=true
-          if [ "$WANT" = "api" ]; then WEB=false; fi
-          if [ "$WANT" = "web" ]; then API=false; fi
+          API=true; WEB=true; MARKETING=true
+          case "$WANT" in
+            api) WEB=false; MARKETING=false ;;
+            web) API=false; MARKETING=false ;;
+            marketing) API=false; WEB=false ;;
+            all|auto) ;;
+          esac
           TAG="pinebase-deploy-${{ steps.target.outputs.env }}"
           if [ "$WANT" = "auto" ]; then
             if BASE=$(git rev-parse -q --verify "refs/tags/$TAG^{commit}") \
@@ -110,11 +113,13 @@ jobs:
                           | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(d.packages.items.map(p=>p.name).join('\n'))"); then
               echo "$NAMES" | grep -qx '@repo/api' || API=false
               echo "$NAMES" | grep -qx '@repo/web' || WEB=false
+              echo "$NAMES" | grep -qx '@repo/marketing' || MARKETING=false
             fi
           fi
           echo "api=$API" >> "$GITHUB_OUTPUT"
           echo "web=$WEB" >> "$GITHUB_OUTPUT"
-          echo "Deploy plan: api=$API web=$WEB"
+          echo "marketing=$MARKETING" >> "$GITHUB_OUTPUT"
+          echo "Deploy plan: api=$API web=$WEB marketing=$MARKETING"
 
       # Quality gates always run for the whole monorepo: build:<env> pulls in
       # clean, cf-typegen, check, format and lint through turbo's task graph.
@@ -135,6 +140,10 @@ jobs:
       - name: Deploy web app
         if: steps.gate.outputs.configured == 'true' && steps.plan.outputs.web == 'true'
         run: pnpm --filter @repo/web run deploy:${{ steps.target.outputs.env }}
+
+      - name: Deploy marketing site
+        if: steps.gate.outputs.configured == 'true' && steps.plan.outputs.marketing == 'true'
+        run: pnpm --filter @repo/marketing run deploy:${{ steps.target.outputs.env }}
 
       - name: Record deployed commit
         if: steps.gate.outputs.configured == 'true'
