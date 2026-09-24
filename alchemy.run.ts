@@ -15,6 +15,7 @@ import { ReviewAccess, StripeWebhookBypass } from './alchemy/Access.ts';
 import { Api } from './alchemy/Api.ts';
 import { stringOr } from './alchemy/config.ts';
 import { Database } from './alchemy/Db.ts';
+import { formatFeatures, optionalFeatures } from './alchemy/features.ts';
 import { assertNotTemplate, STACK, workersDevOrigin } from './alchemy/project.ts';
 import { Storage } from './alchemy/Storage.ts';
 import { StripeWebhook } from './alchemy/Stripe.ts';
@@ -123,6 +124,15 @@ export default Alchemy.Stack(
     const configuredFrom = yield* stringOr('EMAIL_FROM_ADDRESS', '');
     const emailFrom = configuredFrom || (dev ? 'hello@example.com' : undefined);
 
+    // What's off on this stage and how to turn it on, in the deploy log and on
+    // the PR, so a missing setting shows up here rather than in the app.
+    const features = dev ? [] : yield* optionalFeatures(emailFrom);
+    if (!dev) yield* Effect.log(formatFeatures(stage, features));
+    const off = features.filter((feature) => !feature.on).map((feature) => feature.name);
+    const offNote = off.length
+      ? `**Off on this stage:** ${off.join(', ')}. The deploy log says how to turn each on.`
+      : '';
+
     const database = yield* Database(stage);
     const storage = yield* Storage(stage);
 
@@ -168,6 +178,8 @@ export default Alchemy.Stack(
           | **Marketing** | ${marketing.url} |
           | **Stage** | \`${stage}\` |
           | **Commit** | \`${github.sha.slice(0, 7)}\` |
+
+          ${offNote}
 
           _Updates on every push; torn down when this PR closes._
         `
