@@ -15,7 +15,7 @@ import { ReviewAccess, StripeWebhookBypass } from './alchemy/Access.ts';
 import { Api } from './alchemy/Api.ts';
 import { stringOr } from './alchemy/config.ts';
 import { Database } from './alchemy/Db.ts';
-import { STACK, workersDevOrigin } from './alchemy/project.ts';
+import { assertNotTemplate, STACK, workersDevOrigin } from './alchemy/project.ts';
 import { Storage } from './alchemy/Storage.ts';
 import { StripeWebhook } from './alchemy/Stripe.ts';
 import { Marketing, Web } from './alchemy/Web.ts';
@@ -62,6 +62,8 @@ export default Alchemy.Stack(
   Effect.gen(function* () {
     const stage = yield* Stage;
     const dev = yield* ALCHEMY_DEV;
+    // The template runs locally but never deploys: a project made from it does.
+    if (!dev) yield* Effect.sync(assertNotTemplate);
     const isProd = stage === 'prod';
     const isReview = stage === 'staging' || stage.startsWith('pr-');
     // One Access application for the stage; web, API, and marketing all enroll.

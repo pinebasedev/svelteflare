@@ -5,7 +5,7 @@ README's "Deploying" section for stages, workflows, and the secrets and variable
 
 | File                 | What it declares                                                                |
 | -------------------- | ------------------------------------------------------------------------------- |
-| `project.ts`         | Every Cloudflare-side name (`APP`), and the Worker names and URLs per stage     |
+| `project.ts`         | Every Cloudflare-side name (`APP`, from `package.json`), and Worker names/URLs  |
 | `Api.ts`             | The `apps/api` Worker and all its bindings                                      |
 | `Web.ts`             | The `apps/web` SPA and the `apps/marketing` site, as static-asset Workers       |
 | `Db.ts`              | D1, migrations from `apps/api/migrations`; retained on `prod`                   |
@@ -30,7 +30,9 @@ Things that aren't obvious from the code:
   See `Access.ts`. The API also verifies the Access JWT itself (`CF_ACCESS_AUD`).
 - **Not `Cloudflare.Website.SvelteKit`.** In Alchemy 2.0.0-beta.79 it requires SvelteKit 3 and
   refuses a project with `svelte.config.js`. The apps are static, so `StaticSite` builds them.
-- **Fork checklist:** rename `APP` in `project.ts`. Every Worker, token, and stack name follows it.
+- **One name, from `package.json`.** `APP` is the root `package.json` `name`: every Worker, token,
+  and stack name follows it. Deploys and the bootstrap refuse to run while it's still `svelteflare`,
+  and the workflows skip deploys in the template repository itself.
 
 Still unverified before the first real deploy (`pnpm run deploy --stage pr-test`):
 

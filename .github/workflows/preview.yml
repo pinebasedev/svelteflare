@@ -53,6 +53,8 @@ jobs:
 
   deploy:
     needs: check
+    # The template repository itself never deploys; projects made from it do.
+    if: ${{ !github.event.repository.is_template }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -104,7 +106,7 @@ jobs:
         run: scripts/project-ops.sh complete "${{ steps.register.outputs.deployment_id }}" failed
 
   cleanup:
-    if: github.event.action == 'closed'
+    if: github.event.action == 'closed' && !github.event.repository.is_template
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

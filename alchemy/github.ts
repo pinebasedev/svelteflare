@@ -10,7 +10,7 @@ import * as Effect from 'effect/Effect';
 import * as Layer from 'effect/Layer';
 import * as Redacted from 'effect/Redacted';
 import { ciTokenPolicies } from './ciTokenPolicies.ts';
-import { BOOTSTRAP_STACK, CI_TOKEN_NAME } from './project.ts';
+import { APP, assertNotTemplate, BOOTSTRAP_STACK, CI_TOKEN_NAME } from './project.ts';
 
 /**
  * One-time credential bootstrap (project-ops ADR-0010). Mints this repo's
@@ -35,7 +35,8 @@ import { BOOTSTRAP_STACK, CI_TOKEN_NAME } from './project.ts';
  *
  * Reads from the environment or the root `.env`:
  *   - `CLOUDFLARE_ACCOUNT_ID`, `GITHUB_REPO` ("owner/repo"): required.
- *   - `PROJECT_NAME`: the project's name in project-ops. Defaults to the repo name.
+ *   - `PROJECT_NAME`: the project's name in project-ops. Defaults to `APP`
+ *     (`project.ts`), the name its Workers carry.
  *   - `CONTROL_PLANE_DB`: project-ops' D1 database. Defaults to the name
  *     project-ops' `alchemy/Db.ts` pins.
  *   - `CLOUDFLARE_WORKERS_SUBDOMAIN`, `CF_GOOGLE_IDP_ID`, `CF_ACCESS_TEAM_DOMAIN`,
@@ -52,9 +53,10 @@ export default Alchemy.Stack(
     state: Alchemy.localState()
   },
   Effect.gen(function* () {
+    yield* Effect.sync(assertNotTemplate);
     const accountId = yield* Config.String('CLOUDFLARE_ACCOUNT_ID');
     const [owner, repository] = (yield* Config.String('GITHUB_REPO')).split('/');
-    const projectName = yield* Config.String('PROJECT_NAME').pipe(Config.withDefault(repository));
+    const projectName = yield* Config.String('PROJECT_NAME').pipe(Config.withDefault(APP));
     const controlPlaneDb = yield* Config.String('CONTROL_PLANE_DB').pipe(
       Config.withDefault('production-project-ops-db')
     );

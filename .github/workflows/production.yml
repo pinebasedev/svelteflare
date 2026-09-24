@@ -15,7 +15,8 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
+    # The template repository itself never deploys; projects made from it do.
+    if: github.event.pull_request.merged == true && !github.event.repository.is_template
     uses: ./.github/workflows/deploy-stage.yml
     with:
       stage: prod

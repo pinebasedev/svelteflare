@@ -109,10 +109,15 @@ to project-ops, Pinebase's deployment dashboard, when `IDP_API_URL` is set.
 
 ### One-time setup
 
-1. `pnpm bootstrap:github` (see `alchemy/github.ts` for the admin profile it needs) mints a
+1. Set `name` in the root `package.json` to your project's name, e.g. `my-app`. Every Cloudflare
+   resource is named after it (`my-app-api-staging`, the `my-app-ci` token, ...), and so is the
+   project in project-ops. Deploys refuse to run while it's still `svelteflare`, and the workflows
+   never deploy from the template repository itself. Keep the name once deployed: changing it starts
+   a new stack and leaves the old one running.
+2. `pnpm bootstrap:github` (see `alchemy/github.ts` for the admin profile it needs) mints a
    Cloudflare API token scoped to exactly what the stack deploys and stores it in the repo's secrets,
    along with the project-ops token. It also pushes the variables below if they're in your `.env`.
-2. Set the rest in the repo's **Settings → Secrets and variables → Actions**:
+3. Set the rest in the repo's **Settings → Secrets and variables → Actions**:
 
 | Name                                                          | Kind        | Needed for                                                 |
 | ------------------------------------------------------------- | ----------- | ---------------------------------------------------------- |
@@ -153,7 +158,7 @@ Google only redirects to callback URLs registered in advance, and each preview's
 `pr-*` and `staging`, better-auth's OAuth proxy routes Google's callback through staging's API, which
 exchanges the code and hands the profile back to the preview, encrypted with the
 `BETTER_AUTH_SECRET` the two share. The user and session are created in the preview's own database.
-Register two redirect URIs on the Google OAuth client, once:
+Register two redirect URIs on the Google OAuth client, once (`<APP>` is your `package.json` name):
 
 - `https://<APP>-api-staging.<CLOUDFLARE_WORKERS_SUBDOMAIN>.workers.dev/v1/auth/callback/google`
 - prod's API URL + `/v1/auth/callback/google` (prod doesn't use the proxy)
