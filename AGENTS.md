@@ -35,3 +35,7 @@ Detailed guides live in `.agents/skills/`; read the relevant one before working 
 - `svelte-code-writer` — Svelte docs lookup and autofixer CLI
 
 Infrastructure lives in `alchemy.run.ts` and `alchemy/` (Alchemy). GitHub Actions deploys it: a `pr-{number}` preview per pull request into `staging`, `staging` on merge into `staging`, `prod` on merge into `main`. A new binding goes in `alchemy/Api.ts` and, by hand, in `AppBindings` (`apps/api/src/types.d.ts`).
+
+## Commits
+
+Conventional Commits with a required scope, checked by commitlint on every commit: `<type>(<scope>): <short imperative description>`. Types and scopes are in `commitlint.config.js` (scopes: `api`, `web`, `marketing`, `ui`, `alchemy`, `ci`, `db`, `tooling`, `docs`). One logical change per commit; describe the intent, not the files touched, and add a body when a future reader needs the why.
