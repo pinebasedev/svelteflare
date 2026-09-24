@@ -3,6 +3,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { emailOTP } from "better-auth/plugins/email-otp";
+import { oAuthProxy } from "better-auth/plugins/oauth-proxy";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import type { Db } from "./db/database";
@@ -122,6 +123,19 @@ export const getAuth = (
     },
     plugins: [
       ...(stripePlugin ? [stripePlugin] : []),
+      // Review stages: Google only redirects to callback URLs registered in
+      // advance, so every preview sends Google's callback to staging's API,
+      // which exchanges the code and hands the encrypted profile back here.
+      // Staging and previews share BETTER_AUTH_SECRET, the payload's key; on
+      // staging itself (current URL = proxy URL) sign-in isn't proxied.
+      ...(env.OAUTH_PROXY_URL
+        ? [
+            oAuthProxy({
+              productionURL: env.OAUTH_PROXY_URL,
+              currentURL: betterAuthOrigin
+            })
+          ]
+        : []),
       emailOTP({
         overrideDefaultEmailVerification: true,
         otpLength: 6,

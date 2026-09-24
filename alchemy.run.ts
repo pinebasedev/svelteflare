@@ -96,6 +96,15 @@ export default Alchemy.Stack(
             };
           });
 
+    // Google sign-in: Google only accepts callback URLs registered in advance,
+    // and each preview's URL is new. So `pr-*` and `staging` route Google's
+    // callback through staging's API (better-auth's OAuth proxy): register
+    // staging's and prod's callbacks with Google once, and every preview works.
+    const oauthProxyUrl =
+      isReview && !dev
+        ? workersDevOrigin('api', 'staging', yield* Config.String('CLOUDFLARE_WORKERS_SUBDOMAIN'))
+        : undefined;
+
     // Stripe webhooks: registered per stage when Alchemy has a Stripe key
     // (`STRIPE_API_KEY`). Not under `alchemy dev`: Stripe can't reach localhost,
     // so use `stripe listen --forward-to localhost:9003/v1/auth/stripe/webhook`.
@@ -123,6 +132,7 @@ export default Alchemy.Stack(
       webOrigin: urls.app,
       domain: domains.api || undefined,
       emailFrom,
+      oauthProxyUrl,
       stripeWebhookSecret: stripeWebhook?.secret,
       access
     });

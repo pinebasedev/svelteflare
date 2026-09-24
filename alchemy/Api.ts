@@ -27,6 +27,11 @@ export type ApiOptions = {
    * skips every email.
    */
   emailFrom?: string;
+  /**
+   * `pr-*` and `staging`: staging's API origin, where Google sign-in's
+   * callback is routed (better-auth's OAuth proxy, `apps/api/src/auth.ts`).
+   */
+  oauthProxyUrl?: string;
   /** The stage's Stripe webhook signing secret (`alchemy/Stripe.ts`), when it has one. */
   stripeWebhookSecret?: StripeWebhookSecret;
   /** Review stages: enroll in the stage's Access application and verify its JWT. */
@@ -50,6 +55,7 @@ export const Api = ({
   webOrigin,
   domain,
   emailFrom,
+  oauthProxyUrl,
   stripeWebhookSecret,
   access
 }: ApiOptions) =>
@@ -82,6 +88,7 @@ export const Api = ({
       PUBLIC_GOOGLE_CLIENT_ID: stringOr('PUBLIC_GOOGLE_CLIENT_ID', ''),
       EMAIL_FROM_ADDRESS: emailFrom ?? 'hello@example.com',
       EMAIL_FROM_NAME: stringOr('EMAIL_FROM_NAME', 'Demo App'),
+      ...(oauthProxyUrl ? { OAUTH_PROXY_URL: oauthProxyUrl } : {}),
       ...(access
         ? {
             CF_ACCESS_AUD: access.application.aud,

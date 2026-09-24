@@ -26,6 +26,9 @@ export type AppBindings = {
   // Access assertion on every request (`middleware/access-jwt.ts`).
   CF_ACCESS_TEAM_DOMAIN?: string;
   CF_ACCESS_AUD?: string;
+  // Set on `pr-*` and `staging` only: staging's API origin, which receives
+  // Google's sign-in callback for every review stage (OAuth proxy, `auth.ts`).
+  OAUTH_PROXY_URL?: string;
 
   BETTER_AUTH_SECRET: string;
   GOOGLE_CLIENT_SECRET: string;

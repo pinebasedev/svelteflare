@@ -147,6 +147,17 @@ repository variable on a test subdomain (e.g. `noreply@test-mail.example.com`) f
 previews, and a `production` environment variable (`noreply@mail.example.com`) for prod. All stages
 share the account's daily sending quota, which starts small and grows over time.
 
+### Google sign-in
+
+Google only redirects to callback URLs registered in advance, and each preview's URL is new. So on
+`pr-*` and `staging`, better-auth's OAuth proxy routes Google's callback through staging's API, which
+exchanges the code and hands the profile back to the preview, encrypted with the
+`BETTER_AUTH_SECRET` the two share. The user and session are created in the preview's own database.
+Register two redirect URIs on the Google OAuth client, once:
+
+- `https://<APP>-api-staging.<CLOUDFLARE_WORKERS_SUBDOMAIN>.workers.dev/v1/auth/callback/google`
+- prod's API URL + `/v1/auth/callback/google` (prod doesn't use the proxy)
+
 ### Stripe
 
 `staging` and every `pr-*` stage share one Stripe sandbox; `prod` uses live mode. Each stage's
