@@ -16,36 +16,36 @@
     "deploy:production": "wrangler deploy --env production"
   },
   "devDependencies": {
-    "@iconify/json": "2.2.497",
-    "@internationalized/date": "3.12.2",
+    "@iconify/json": "2.2.533",
+    "@internationalized/date": "3.12.4",
     "@paralleldrive/cuid2": "3.3.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@sveltejs/adapter-static": "3.0.10",
-    "@sveltejs/kit": "2.69.1",
-    "@sveltejs/vite-plugin-svelte": "7.1.4",
+    "@sveltejs/kit": "2.70.3",
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@types/node": "26.1.0",
     "eslint": "10.6.0",
-    "svelte": "5.56.4",
-    "svelte-check": "4.7.2",
+    "svelte": "5.57.1",
+    "svelte-check": "4.7.6",
     "sveltekit-superforms": "2.30.2",
     "tailwind-scrollbar": "4.0.2",
     "typescript": "6.0.3",
-    "unplugin-icons": "23.0.1",
+    "unplugin-icons": "24.0.0",
     "vite": "8.1.3",
     "wrangler": "4.107.0",
-    "zod": "4.4.3"
+    "zod": "4.6.5"
   },
   "type": "module",
   "dependencies": {
-    "@better-auth/stripe": "1.6.23",
+    "@better-auth/stripe": "1.7.5",
     "@repo/ui": "workspace:*",
+    "@tailwindcss/vite": "4.3.3",
+    "better-auth": "1.7.5",
+    "hono": "4.13.9",
     "mode-watcher": "1.1.0",
-    "@tailwindcss/vite": "4.3.2",
-    "better-auth": "1.6.23",
-    "hono": "4.12.28",
-    "svelte-sonner": "1.1.1",
-    "tailwindcss": "4.3.2"
+    "svelte-sonner": "1.2.1",
+    "tailwindcss": "4.3.3"
   },
   "packageManager": "pnpm@10.26.0"
 }

@@ -25,7 +25,8 @@ Backend product systems for the svelteflare monorepo. All server logic lives in 
 apps/api/src/
   auth.ts               ← Better Auth singleton factory (getAuth)
   db/
-    schema.ts           ← Drizzle schema (all tables)
+    schema.ts           ← Drizzle schema: app tables + re-exports auth-schema.ts
+    auth-schema.ts      ← Better Auth tables, GENERATED (pnpm --filter @repo/api generate:auth)
     database.ts         ← DB singleton factory (getDb)
   middleware/
     auth.ts             ← authMiddleware — resolves session on every request
@@ -155,7 +156,7 @@ await authClient.emailOtp.verifyEmail({ email, otp })
 
 ### Schema location
 
-All tables are defined in `apps/api/src/db/schema.ts`. Existing tables:
+Import every table from `apps/api/src/db/schema.ts`. The app's own tables (`plan`, and any you add) are defined there. The Better Auth tables are generated into `apps/api/src/db/auth-schema.ts` by Better Auth's CLI from `apps/api/auth.config.ts`, and `schema.ts` re-exports them. Never edit `auth-schema.ts` by hand: after changing a Better Auth plugin or option, mirror the change in `auth.config.ts`, run `pnpm --filter @repo/api generate:auth`, then generate the migration as below. Existing tables:
 
 | Table | Purpose |
 |---|---|

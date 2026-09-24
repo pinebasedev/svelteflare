@@ -13,7 +13,9 @@
     {
       "binding": "DB",
       "database_name": "sf-db-local",
-      "database_id": "<YOUR_D1_DATABASE_ID>"
+      "database_id": "<YOUR_D1_DATABASE_ID>",
+      "migrations_dir": "migrations",
+      "migrations_pattern": "migrations/*/migration.sql"
     }
   ],
   "r2_buckets": [
@@ -68,7 +70,9 @@
         {
           "binding": "DB",
           "database_name": "sf-db-production",
-          "database_id": "<YOUR_D1_DATABASE_ID_PRODUCTION>"
+          "database_id": "<YOUR_D1_DATABASE_ID_PRODUCTION>",
+          "migrations_dir": "migrations",
+          "migrations_pattern": "migrations/*/migration.sql"
         }
       ],
       "r2_buckets": [
@@ -115,7 +119,9 @@
         {
           "binding": "DB",
           "database_name": "sf-db-staging",
-          "database_id": "<YOUR_D1_DATABASE_ID_STAGING>"
+          "database_id": "<YOUR_D1_DATABASE_ID_STAGING>",
+          "migrations_dir": "migrations",
+          "migrations_pattern": "migrations/*/migration.sql"
         }
       ],
       "r2_buckets": [
@@ -162,7 +168,9 @@
         {
           "binding": "DB",
           "database_name": "sf-db-local",
-          "database_id": "<YOUR_D1_DATABASE_ID>"
+          "database_id": "<YOUR_D1_DATABASE_ID>",
+          "migrations_dir": "migrations",
+          "migrations_pattern": "migrations/*/migration.sql"
         }
       ],
       "r2_buckets": [

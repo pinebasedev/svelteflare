@@ -1,11 +1,12 @@
 import { stripe, type StripePlan } from "@better-auth/stripe";
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter/relations-v2";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
 import type { Db } from "./db/database";
+import * as schema from "./db/schema";
 import { plan, user as userTable } from "./db/schema";
 import { sendResetEmail, sendVerificationOtpEmail } from "./helpers/email";
 import { getAllowedOrigin } from "./helpers/origins";
@@ -29,7 +30,7 @@ export const getAuth = (
   const stripePlugin = env.STRIPE_SECRET_KEY
     ? stripe({
         stripeClient: new Stripe(env.STRIPE_SECRET_KEY, {
-          apiVersion: "2026-06-24.dahlia"
+          apiVersion: "2026-08-26.dahlia"
         }),
         stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
         createCustomerOnSignUp: true,
@@ -102,7 +103,10 @@ export const getAuth = (
       autoSignInAfterVerification: true,
       expiresIn: 3600
     },
-    database: drizzleAdapter(db, { provider: "sqlite" }),
+    // `schema` is passed here, not to `drizzle()`: under drizzle-orm v1 the
+    // db instance no longer carries it, and the adapter needs it to find the
+    // auth tables.
+    database: drizzleAdapter(db, { provider: "sqlite", schema }),
     session: {
       cookieCache: {
         enabled: true,
