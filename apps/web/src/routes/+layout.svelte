@@ -41,7 +41,7 @@
 </svelte:head>
 
 <ModeWatcher />
-<div class="relative flex flex-col h-svh overflow-hidden justify-center bg-background">
+<div class="relative flex h-svh flex-col justify-center overflow-hidden bg-background">
 	<div class="absolute top-3 right-3 z-50">
 		<Button.Root variant="ghost" size="icon" onclick={toggleMode} aria-label="Toggle color mode">
 			{#if mode.current === 'dark'}

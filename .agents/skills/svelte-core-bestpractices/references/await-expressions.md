@@ -9,11 +9,11 @@ This feature is currently experimental, and you must opt in by adding the `exper
 ```js
 /// file: svelte.config.js
 export default {
-	compilerOptions: {
-		experimental: {
-			async: true,
-		},
-	},
+  compilerOptions: {
+    experimental: {
+      async: true
+    }
+  }
 };
 ```
 
@@ -83,21 +83,21 @@ You can also use [`settled()`](svelte#settled) to get a promise that resolves wh
 import { tick, settled } from 'svelte';
 
 async function onclick() {
-	updating = true;
+  updating = true;
 
-	// without this, the change to `updating` will be
-	// grouped with the other changes, meaning it
-	// won't be reflected in the UI
-	await tick();
+  // without this, the change to `updating` will be
+  // grouped with the other changes, meaning it
+  // won't be reflected in the UI
+  await tick();
 
-	color = 'octarine';
-	answer = 42;
+  color = 'octarine';
+  answer = 42;
 
-	await settled();
+  await settled();
 
-	// any updates affected by `color` or `answer`
-	// have now been applied
-	updating = false;
+  // any updates affected by `color` or `answer`
+  // have now been applied
+  updating = false;
 }
 ```
 

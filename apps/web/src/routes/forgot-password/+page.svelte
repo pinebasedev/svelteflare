@@ -38,8 +38,8 @@
 	const { form: formData, enhance, submitting } = form;
 </script>
 
-<div class="fixed inset-0 overflow-y-auto px-4 py-10 bg-background">
-	<div class="min-h-full flex flex-col gap-6 items-center justify-center">
+<div class="fixed inset-0 overflow-y-auto bg-background px-4 py-10">
+	<div class="flex min-h-full flex-col items-center justify-center gap-6">
 		<h1 class="text-2xl">Demo App</h1>
 		<Card.Root class="w-full sm:w-sm">
 			<Card.Header>
@@ -56,7 +56,7 @@
 									bind:value={$formData.email}
 									type="email"
 									{...props}
-									class="placeholder:text-sm text-base"
+									class="text-base placeholder:text-sm"
 								/>
 							{/snippet}
 						</Form.Control>

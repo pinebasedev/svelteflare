@@ -33,6 +33,6 @@
 </svelte:head>
 
 <ModeWatcher />
-<div class="bg-background text-foreground min-h-svh">
+<div class="min-h-svh bg-background text-foreground">
 	{@render children?.()}
 </div>

@@ -8,7 +8,7 @@
 <div class="flex min-h-svh flex-col">
 	<Header />
 	<div class="flex flex-1 flex-col items-center justify-center px-4 py-8 text-center">
-		<h1 class="mb-4 text-7xl tracking-tight font-semibold lg:text-9xl">
+		<h1 class="mb-4 text-7xl font-semibold tracking-tight lg:text-9xl">
 			{page.status}
 		</h1>
 		<p class="mb-8 text-lg text-muted-foreground">

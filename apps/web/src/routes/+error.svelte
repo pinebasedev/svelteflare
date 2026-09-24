@@ -3,7 +3,7 @@
 	import { Button } from '@repo/ui';
 </script>
 
-<div class="py-8 px-4 mx-auto max-w-2xl lg:py-16 lg:px-6 text-center">
+<div class="mx-auto max-w-2xl px-4 py-8 text-center lg:px-6 lg:py-16">
 	<h1 class="mb-4 text-7xl tracking-tight lg:text-9xl">
 		{page.status}
 	</h1>

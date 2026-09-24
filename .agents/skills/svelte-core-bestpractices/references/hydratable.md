@@ -68,7 +68,7 @@ All data returned from a `hydratable` function must be serializable. But this do
 const nonce = crypto.randomUUID();
 
 const { head, body } = await render(App, {
-	csp: { nonce },
+  csp: { nonce }
 });
 ```
 
@@ -84,7 +84,7 @@ If instead you are generating static HTML ahead of time, you must use hashes ins
 
 ```js
 const { head, body, hashes } = await render(App, {
-	csp: { hash: true },
+  csp: { hash: true }
 });
 ```
 
@@ -92,8 +92,8 @@ const { head, body, hashes } = await render(App, {
 
 ```js
 response.headers.set(
-	'Content-Security-Policy',
-	`script-src ${hashes.script.map((hash) => `'${hash}'`).join(' ')}`,
+  'Content-Security-Policy',
+  `script-src ${hashes.script.map((hash) => `'${hash}'`).join(' ')}`
 );
 ```
 

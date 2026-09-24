@@ -20,11 +20,7 @@
 		monthlyPrice: 9,
 		yearlyPrice: 79,
 		discountBadge: '27% OFF',
-		features: [
-			'Full access to all features',
-			'Priority support',
-			'Unlimited usage'
-		]
+		features: ['Full access to all features', 'Priority support', 'Unlimited usage']
 	} as const;
 
 	let isYearly = $state(false);
@@ -94,22 +90,23 @@
 <div class="w-full max-w-xl">
 	<Card.Root class="w-full">
 		<Card.Header>
-			<Card.Title class="text-xl text-center">Premium</Card.Title>
+			<Card.Title class="text-center text-xl">Premium</Card.Title>
 		</Card.Header>
 		<Card.Content>
 			<div class="flex flex-col gap-3">
-				<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full">
+				<div class="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2">
 					<div class="justify-self-end text-sm">Monthly</div>
 					<div class="justify-self-center">
 						<Switch.Root bind:checked={isYearly} />
 					</div>
 					<div class="flex items-center gap-1 justify-self-start">
 						<span class="text-sm">Yearly</span>
-						<Badge.Root class="bg-primary text-primary-foreground">{OFFER.discountBadge}</Badge.Root>
+						<Badge.Root class="bg-primary text-primary-foreground">{OFFER.discountBadge}</Badge.Root
+						>
 					</div>
 				</div>
 
-				<div class="text-6xl w-full text-center my-2 mb-6">
+				<div class="my-2 mb-6 w-full text-center text-6xl">
 					${price}<span class="text-base">{periodLabel}</span>
 				</div>
 
@@ -120,11 +117,11 @@
 				{/each}
 
 				{#if hasActiveSubscription}
-					<div class="inline-flex items-center justify-center mt-4 w-full text-sm text-primary">
+					<div class="mt-4 inline-flex w-full items-center justify-center text-sm text-primary">
 						You already have an active subscription.
 					</div>
 				{:else}
-					<div class="flex flex-col items-center mt-4 mb-2 w-full">
+					<div class="mt-4 mb-2 flex w-full flex-col items-center">
 						<Button.Root onclick={subscribe} disabled={loading} class="w-64">
 							{loading ? 'Opening checkout...' : 'Subscribe'}
 						</Button.Root>

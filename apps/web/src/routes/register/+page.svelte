@@ -41,8 +41,8 @@
 	const { form: formData, enhance, submitting } = form;
 </script>
 
-<div class="fixed inset-0 overflow-y-auto px-4 py-10 bg-background">
-	<div class="min-h-full flex flex-col gap-6 items-center justify-center">
+<div class="fixed inset-0 overflow-y-auto bg-background px-4 py-10">
+	<div class="flex min-h-full flex-col items-center justify-center gap-6">
 		<h1 class="text-2xl">Demo App</h1>
 		<Card.Root class="mx-auto w-full sm:w-sm">
 			<Card.Header>
@@ -55,12 +55,7 @@
 						<Form.Control>
 							{#snippet children({ props })}
 								<Form.Label>Name</Form.Label>
-								<Input.Root
-									bind:value={$formData.name}
-									type="text"
-									{...props}
-									class="text-base"
-								/>
+								<Input.Root bind:value={$formData.name} type="text" {...props} class="text-base" />
 							{/snippet}
 						</Form.Control>
 						<Form.FieldErrors />
@@ -118,7 +113,7 @@
 
 				<div class="mt-4 text-center text-sm">
 					Already have an account?
-					<Button.Root variant="link" href="/login" class="underline p-0 text-sm h-fit">
+					<Button.Root variant="link" href="/login" class="h-fit p-0 text-sm underline">
 						Login
 					</Button.Root>
 				</div>

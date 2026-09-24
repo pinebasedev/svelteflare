@@ -16,11 +16,11 @@ Orchestrate new feature work in this Svelte 5 + Hono monorepo on Cloudflare. The
 
 ## Step 1: Classify the feature
 
-| Type | Layers affected |
-|---|---|
-| UI-only | `apps/web` only — new page, component, or visual change |
-| Backend-only | `apps/api` only — new endpoint, DB change, middleware |
-| Full-stack | Both apps, possibly `packages/ui` |
+| Type         | Layers affected                                         |
+| ------------ | ------------------------------------------------------- |
+| UI-only      | `apps/web` only — new page, component, or visual change |
+| Backend-only | `apps/api` only — new endpoint, DB change, middleware   |
+| Full-stack   | Both apps, possibly `packages/ui`                       |
 
 Ask the user if it isn't obvious. Knowing the scope determines which layers to read before proposing any code.
 
@@ -28,14 +28,14 @@ Ask the user if it isn't obvious. Knowing the scope determines which layers to r
 
 Read the relevant existing files first. This prevents duplicate logic, wrong conventions, and mismatched types.
 
-| What you're adding | Read first |
-|---|---|
-| New API route | `apps/api/src/routes/index.ts`, an existing route file (e.g. `routes/access.ts`) |
-| New DB table | `apps/api/src/db/schema.ts`, `apps/api/migrations/` |
-| New web page | `apps/web/src/routes/` directory listing, `apps/web/src/routes/+layout.ts` |
-| New form | `apps/web/src/lib/forms/` for existing schemas; a page that already uses superforms |
-| New shared component | `packages/ui/src/components/ui/`, `packages/ui/src/index.ts` |
-| Auth or subscription gating | `apps/api/src/middleware/authorization.ts`, `apps/api/src/routes/index.ts` |
+| What you're adding          | Read first                                                                          |
+| --------------------------- | ----------------------------------------------------------------------------------- |
+| New API route               | `apps/api/src/routes/index.ts`, an existing route file (e.g. `routes/access.ts`)    |
+| New DB table                | `apps/api/src/db/schema.ts`, `apps/api/migrations/`                                 |
+| New web page                | `apps/web/src/routes/` directory listing, `apps/web/src/routes/+layout.ts`          |
+| New form                    | `apps/web/src/lib/forms/` for existing schemas; a page that already uses superforms |
+| New shared component        | `packages/ui/src/components/ui/`, `packages/ui/src/index.ts`                        |
+| Auth or subscription gating | `apps/api/src/middleware/authorization.ts`, `apps/api/src/routes/index.ts`          |
 
 If you haven't oriented to the repo yet, run `/project-orientation` first.
 
@@ -81,12 +81,12 @@ Only proceed past this step once the user agrees.
 ### Context variables (set by middleware, available in all handlers)
 
 ```ts
-c.var.db                 // Drizzle D1 client
-c.var.auth               // Better-Auth instance
-c.var.session            // Current session (after requireAuthenticated)
-c.var.user               // Current user (after requireAuthenticated)
-c.var.activeSubscription // Active subscription or null
-c.var.isEntitled         // Boolean — paid user or free-tier allowed
+c.var.db; // Drizzle D1 client
+c.var.auth; // Better-Auth instance
+c.var.session; // Current session (after requireAuthenticated)
+c.var.user; // Current user (after requireAuthenticated)
+c.var.activeSubscription; // Active subscription or null
+c.var.isEntitled; // Boolean — paid user or free-tier allowed
 ```
 
 ## Step 5: Frontend implementation (apps/web)
@@ -98,7 +98,7 @@ c.var.isEntitled         // Boolean — paid user or free-tier allowed
 Create `apps/web/src/routes/<path>/+page.svelte`. The root layout loader already fetches `/v1/access` on every navigation, so layout data is always available:
 
 ```ts
-let { data } = $props()
+let { data } = $props();
 // data.user, data.session, data.isEntitled, data.activeSubscription
 ```
 
@@ -113,8 +113,8 @@ For page-specific data, add a sibling `+page.ts` with a `load` function that cal
 ### Calling the API
 
 ```ts
-import { apiFetch } from '$lib/api'
-const result = await apiFetch('/v1/<route>', { method: 'POST', body: payload })
+import { apiFetch } from '$lib/api';
+const result = await apiFetch('/v1/<route>', { method: 'POST', body: payload });
 ```
 
 ### Components

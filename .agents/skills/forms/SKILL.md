@@ -144,11 +144,11 @@ import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 
 ## validationMethod options
 
-| Value | When to use |
-|---|---|
-| `'onsubmit'` | Simple forms; only validate on submit |
-| `'oninput'` | Real-time feedback (password strength, search) |
-| `'onblur'` | Longer forms; validate each field when user leaves it |
+| Value        | When to use                                           |
+| ------------ | ----------------------------------------------------- |
+| `'onsubmit'` | Simple forms; only validate on submit                 |
+| `'oninput'`  | Real-time feedback (password strength, search)        |
+| `'onblur'`   | Longer forms; validate each field when user leaves it |
 
 ## Pre-populating with existing data
 
@@ -160,7 +160,7 @@ let { data } = $props(); // data.profile from +page.ts load fn
 
 const form = superForm(data.profile, {
   SPA: true,
-  validators: zod4Client(profileFormSchema),
+  validators: zod4Client(profileFormSchema)
   // ...
 });
 ```
@@ -168,12 +168,17 @@ const form = superForm(data.profile, {
 Or when you have it inline:
 
 ```ts
-const form = superForm({ name: data.user.name, email: data.user.email }, {
-  SPA: true,
-  validators: zod4Client(profileFormSchema),
-  validationMethod: 'onblur',
-  async onUpdate({ form }) { /* ... */ }
-});
+const form = superForm(
+  { name: data.user.name, email: data.user.email },
+  {
+    SPA: true,
+    validators: zod4Client(profileFormSchema),
+    validationMethod: 'onblur',
+    async onUpdate({ form }) {
+      /* ... */
+    }
+  }
+);
 ```
 
 ## Schema file location

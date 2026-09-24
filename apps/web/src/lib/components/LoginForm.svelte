@@ -93,7 +93,7 @@
 							bind:value={$formData.email}
 							type="email"
 							{...props}
-							class="placeholder:text-sm text-base"
+							class="text-base placeholder:text-sm"
 						/>
 					{/snippet}
 				</Form.Control>
@@ -108,7 +108,7 @@
 							<Button.Root
 								variant="link"
 								href="/forgot-password"
-								class="ml-auto inline-block text-xs underline py-0 h-auto"
+								class="ml-auto inline-block h-auto py-0 text-xs underline"
 							>
 								Forgot your password?
 							</Button.Root>
@@ -117,28 +117,28 @@
 							bind:value={$formData.password}
 							type="password"
 							{...props}
-							class="placeholder:text-sm text-base"
+							class="text-base placeholder:text-sm"
 						/>
 					{/snippet}
 				</Form.Control>
 				<Form.FieldErrors />
 			</Form.Field>
 
-			<Button.Root type="submit" class="w-full mb-6" disabled={$submitting}>
+			<Button.Root type="submit" class="mb-6 w-full" disabled={$submitting}>
 				{$submitting ? 'Logging in...' : 'Login'}
 			</Button.Root>
 
 			<div
-				class="font-normal mb-6 after:border-border text-xs relative text-center after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t"
+				class="relative mb-6 text-center text-xs font-normal after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border"
 			>
-				<span class="bg-background text-muted-foreground relative z-10 px-2">OR</span>
+				<span class="relative z-10 bg-background px-2 text-muted-foreground">OR</span>
 			</div>
 
 			<Button.Root
 				onclick={signInWithGoogle}
 				disabled={$submitting}
 				variant="secondary"
-				class="text-sm w-full"
+				class="w-full text-sm"
 			>
 				<GoogleIcon />
 				Continue with Google
@@ -148,7 +148,7 @@
 		{#if showSignupLink}
 			<div class="mt-4 text-center text-sm">
 				Don't have an account?
-				<Button.Root variant="link" href="/register" class="underline p-0 text-sm h-fit">
+				<Button.Root variant="link" href="/register" class="h-fit p-0 text-sm underline">
 					Sign up
 				</Button.Root>
 			</div>

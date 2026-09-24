@@ -51,6 +51,7 @@ apps/web/src/lib/
 `getAuth(db, env)` in `apps/api/src/auth.ts` is a singleton factory. It takes the Drizzle DB instance and Cloudflare env bindings. Never call `betterAuth()` directly in a route — always use `getAuth`.
 
 Active plugins:
+
 - `emailOTP` — 6-digit OTP for email verification, 15-min expiry
 - `@better-auth/stripe` — creates Stripe customer on signup, manages subscriptions
 - Email/password (requires email verification before login)
@@ -63,16 +64,16 @@ Active plugins:
 `authMiddleware` runs on every request and sets these on the Hono context:
 
 ```ts
-c.get("user")     // User object | null
-c.get("session")  // Session object | null
-c.get("db")       // Drizzle DB instance (set here for convenience)
+c.get('user'); // User object | null
+c.get('session'); // Session object | null
+c.get('db'); // Drizzle DB instance (set here for convenience)
 ```
 
 `subscriptionMiddleware` runs after `authMiddleware` on authenticated route groups and adds:
 
 ```ts
-c.get("isEntitled")         // boolean — active or trialing subscription
-c.get("activeSubscription") // subscription object | null
+c.get('isEntitled'); // boolean — active or trialing subscription
+c.get('activeSubscription'); // subscription object | null
 ```
 
 ### Protecting routes
@@ -81,20 +82,20 @@ Routes are organized in groups in `apps/api/src/routes/index.ts`. Apply middlewa
 
 ```ts
 // Public — no auth required
-app.route("/v1/public", publicRoutes)
+app.route('/v1/public', publicRoutes);
 
 // Authenticated — session required
 const authRoutes = new Hono()
-  .use(requireAuthenticated)  // 401 if no session
-  .use(subscriptionMiddleware)
-authRoutes.route("/", myAuthenticatedRoutes)
+  .use(requireAuthenticated) // 401 if no session
+  .use(subscriptionMiddleware);
+authRoutes.route('/', myAuthenticatedRoutes);
 
 // Entitled — active subscription required
 const premiumRoutes = new Hono()
   .use(requireAuthenticated)
   .use(subscriptionMiddleware)
-  .use(requireEntitled)       // 403 if not entitled
-premiumRoutes.route("/", myPremiumRoutes)
+  .use(requireEntitled); // 403 if not entitled
+premiumRoutes.route('/', myPremiumRoutes);
 ```
 
 `requireAuthenticated` checks `c.get("session")` — returns 401 if missing.
@@ -106,8 +107,8 @@ The SvelteKit layout calls `/v1/access` on every page load and stores the result
 
 ```ts
 // +layout.ts
-const res = await apiFetch('/v1/access')
-return { user, session, isEntitled, activeSubscription }
+const res = await apiFetch('/v1/access');
+return { user, session, isEntitled, activeSubscription };
 ```
 
 In Svelte components, guard UI with:
@@ -135,19 +136,19 @@ Never replicate server-side auth checks in the SvelteKit layer — the Hono API 
 `apps/web/src/lib/authClient.ts` exports the Better Auth client. Use it for all auth actions in the browser:
 
 ```ts
-import { authClient } from '$lib/authClient'
+import { authClient } from '$lib/authClient';
 
 // Sign in
-await authClient.signIn.email({ email, password })
+await authClient.signIn.email({ email, password });
 
 // Sign out
-await authClient.signOut()
+await authClient.signOut();
 
 // Send OTP
-await authClient.emailOtp.sendVerificationOtp({ email, type: 'email-verification' })
+await authClient.emailOtp.sendVerificationOtp({ email, type: 'email-verification' });
 
 // Verify OTP
-await authClient.emailOtp.verifyEmail({ email, otp })
+await authClient.emailOtp.verifyEmail({ email, otp });
 ```
 
 ---
@@ -158,14 +159,14 @@ await authClient.emailOtp.verifyEmail({ email, otp })
 
 Import every table from `apps/api/src/db/schema.ts`. The app's own tables (`plan`, and any you add) are defined there. The Better Auth tables are generated into `apps/api/src/db/auth-schema.ts` by Better Auth's CLI from `apps/api/auth.config.ts`, and `schema.ts` re-exports them. Never edit `auth-schema.ts` by hand: after changing a Better Auth plugin or option, mirror the change in `auth.config.ts`, run `pnpm --filter @repo/api generate:auth`, then generate the migration as below. Existing tables:
 
-| Table | Purpose |
-|---|---|
-| `user` | Users — includes `stripeCustomerId` |
-| `session` | Better Auth sessions |
-| `account` | OAuth provider accounts |
-| `verification` | Email/OTP verification tokens |
-| `subscription` | Active Stripe subscriptions |
-| `plan` | Product plans (name, priceId, limits) |
+| Table          | Purpose                               |
+| -------------- | ------------------------------------- |
+| `user`         | Users — includes `stripeCustomerId`   |
+| `session`      | Better Auth sessions                  |
+| `account`      | OAuth provider accounts               |
+| `verification` | Email/OTP verification tokens         |
+| `subscription` | Active Stripe subscriptions           |
+| `plan`         | Product plans (name, priceId, limits) |
 
 ### Conventions
 
@@ -179,27 +180,36 @@ Import every table from `apps/api/src/db/schema.ts`. The app's own tables (`plan
 
 ```ts
 export const widget = sqliteTable('widget', {
-  id: text('id').primaryKey().$defaultFn(() => createId()),
-  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => createId()),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().$defaultFn(() => new Date()),
-})
+  createdAt: integer('created_at', { mode: 'timestamp_ms' })
+    .notNull()
+    .$defaultFn(() => new Date())
+});
 
-export type Widget = typeof widget.$inferSelect
-export type NewWidget = typeof widget.$inferInsert
+export type Widget = typeof widget.$inferSelect;
+export type NewWidget = typeof widget.$inferInsert;
 ```
 
 2. Generate the migration:
+
 ```bash
 just generate
 ```
 
 3. Apply to local D1:
+
 ```bash
 just migrate-local
 ```
 
 4. Apply to staging/production when ready:
+
 ```bash
 just migrate-staging
 just migrate-production
@@ -214,20 +224,17 @@ Same flow — edit the schema, `just generate`, `just migrate-local`. Never edit
 `authMiddleware` sets `c.get("db")` — use that in every route handler:
 
 ```ts
-import { widget } from '../db/schema'
-import { eq } from 'drizzle-orm'
+import { widget } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
 app.get('/widgets', async (c) => {
-  const user = c.get('user')!
-  const db = c.get('db')
+  const user = c.get('user')!;
+  const db = c.get('db');
 
-  const widgets = await db
-    .select()
-    .from(widget)
-    .where(eq(widget.userId, user.id))
+  const widgets = await db.select().from(widget).where(eq(widget.userId, user.id));
 
-  return c.json({ widgets })
-})
+  return c.json({ widgets });
+});
 ```
 
 Never call `getDb(c.env)` inside route handlers — it's already set by middleware.
@@ -277,28 +284,28 @@ Plans are stored in the `plan` DB table and loaded at runtime by the plugin.
 ### Initiating checkout (web side)
 
 ```ts
-import { authClient } from '$lib/authClient'
+import { authClient } from '$lib/authClient';
 
 await authClient.subscription.upgrade({
-  plan: 'premium',           // matches plan.name in DB
-  annual: isYearly,          // uses annualDiscountPriceId if true
+  plan: 'premium', // matches plan.name in DB
+  annual: isYearly, // uses annualDiscountPriceId if true
   successUrl: `${APP_URL}/?checkout=success`,
   cancelUrl: `${APP_URL}/premium`,
-  returnUrl: `${APP_URL}/premium`,
-})
+  returnUrl: `${APP_URL}/premium`
+});
 ```
 
 After checkout succeeds, refresh auth state so `isEntitled` updates:
 
 ```ts
-import { invalidate } from '$app/navigation'
-await invalidate('auth:session')
+import { invalidate } from '$app/navigation';
+await invalidate('auth:session');
 ```
 
 ### Customer Portal (web side)
 
 ```ts
-await authClient.subscription.cancel()
+await authClient.subscription.cancel();
 // or navigate to the portal URL returned by the plugin
 ```
 
@@ -319,7 +326,7 @@ In the web app, check `data.isEntitled` from `page.data`. Show upgrade UI when f
 ### Checking the user's plan in a route
 
 ```ts
-const subscription = c.get('activeSubscription')
+const subscription = c.get('activeSubscription');
 // subscription.plan — the plan name
 // subscription.status — 'active' | 'trialing' | 'canceled' | ...
 ```
@@ -334,14 +341,15 @@ Cloudflare bindings and secrets arrive through `c.env` (type `AppBindings`). Nev
 
 ```ts
 // In a route handler
-const secret = c.env.MY_SECRET
+const secret = c.env.MY_SECRET;
 
 // In getAuth / getDb factories (they receive env directly)
-getAuth(db, c.env)
-getDb(c.env)
+getAuth(db, c.env);
+getDb(c.env);
 ```
 
 Secrets are set via:
+
 ```bash
 wrangler secret put MY_SECRET          # production
 wrangler secret put MY_SECRET --env staging  # staging
@@ -371,10 +379,10 @@ The web app imports `AppType` directly from the API source to get end-to-end typ
 
 ```ts
 // apps/web/src/lib/api.ts
-import { hc } from 'hono/client'
-import type { AppType } from 'api/src/index'
+import { hc } from 'hono/client';
+import type { AppType } from 'api/src/index';
 
-const client = hc<AppType>(API_BASE_URL)
+const client = hc<AppType>(API_BASE_URL);
 ```
 
 When you add a new Hono route, export its type through `AppType` so the web client stays typed automatically.

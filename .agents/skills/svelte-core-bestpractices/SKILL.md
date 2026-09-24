@@ -21,7 +21,7 @@ let square = $derived(num * num);
 let square;
 
 $effect(() => {
-	square = num * num;
+  square = num * num;
 });
 ```
 

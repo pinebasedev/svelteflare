@@ -19,7 +19,7 @@
 	};
 </script>
 
-<div class="flex flex-col h-full items-center justify-center gap-6 p-4">
+<div class="flex h-full flex-col items-center justify-center gap-6 p-4">
 	{#if user}
 		<Card.Root class="w-full max-w-md">
 			<Card.Header>
