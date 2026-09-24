@@ -16,10 +16,11 @@ This orientation is for you, the agent — don't recite it to the user. The user
 
 Two-layer Cloudflare stack:
 
-| Layer | Package     | Port | Tech                                                               |
-| ----- | ----------- | ---- | ------------------------------------------------------------------ |
-| API   | `@repo/api` | 9003 | Hono + Drizzle ORM + better-auth, runs as a Cloudflare Worker      |
-| Web   | `@repo/web` | 9002 | SvelteKit static SPA served by a Cloudflare Worker (static assets) |
+| Layer     | Package           | Port | Tech                                                               |
+| --------- | ----------------- | ---- | ------------------------------------------------------------------ |
+| API       | `@repo/api`       | 9003 | Hono + Drizzle ORM + better-auth, runs as a Cloudflare Worker      |
+| Web       | `@repo/web`       | 9002 | SvelteKit static SPA served by a Cloudflare Worker (static assets) |
+| Marketing | `@repo/marketing` | 9001 | Prerendered SvelteKit site served by a Cloudflare Worker           |
 
 The API handles all business logic; the web app is a pure frontend that talks to the API via `PUBLIC_API_URL`.
 
@@ -29,7 +30,10 @@ The API handles all business logic; the web app is a pure frontend that talks to
 /
 ├── apps/
 │   ├── api/          # Cloudflare Worker — auth, DB, Stripe, business logic
-│   └── web/          # SvelteKit SPA — all UI and routing
+│   ├── web/          # SvelteKit SPA — all UI and routing
+│   └── marketing/    # Static marketing site
+├── alchemy/          # Infrastructure: one file per Cloudflare resource
+├── alchemy.run.ts    # The Alchemy stack (dev, deploy, destroy)
 ├── packages/
 │   ├── ui/           # Shared shadcn-svelte component library
 │   ├── typescript-config/  # Shared tsconfig bases (svelte.json, worker.json)
@@ -71,8 +75,9 @@ Package names use the `@repo/*` workspace alias.
 
 ### Config Files
 
-- Cloudflare Workers: `apps/api/wrangler.jsonc` (D1 bindings, env vars, rate limits)
-- Web worker (static assets): `apps/web/wrangler.jsonc`
+- Cloudflare resources: `alchemy.run.ts` + `alchemy/` (Alchemy). `alchemy/Api.ts` declares the API's
+  bindings, env vars, and rate limits; `alchemy/Web.ts` the web and marketing sites. Config and
+  secrets come from the root `.env` (see `.env.example`) or GitHub Actions secrets/variables.
 - TypeScript: each app extends `@repo/typescript-config/{svelte,worker}.json`
 - Tailwind: v4 via `@tailwindcss/vite` plugin — no separate config file
 - Formatting: oxfmt, root `.oxfmtrc.json` (single quotes, print width 100, no trailing commas; tabs +
@@ -92,50 +97,36 @@ Package names use the `@repo/*` workspace alias.
 
 ## Available Commands
 
-**Root (runs all apps via Turbo):**
+**Root:**
 
 ```bash
-pnpm dev        # Start all dev servers
-pnpm build      # Build everything
+pnpm dev        # alchemy dev: API in workerd with local D1/R2/email, web + marketing via Vite
+pnpm build      # Build the web and marketing sites
 pnpm lint       # oxlint, then ESLint on .svelte files
-pnpm check      # Type-check all packages
+pnpm check      # Type-check all packages and the Alchemy stack
 pnpm format     # oxfmt format everything
+pnpm run deploy --stage <name> / pnpm run destroy --stage <name>   # Hand deploys (CI does the real ones)
 ```
 
-**Just recipes (preferred for targeted work):**
-
-```bash
-just dev-web / just dev-api / just dev   # Dev servers
-just build-web / just build-api          # Builds
-just deploy-web-staging / just deploy-web-production
-just deploy-api-staging / just deploy-api-production
-just db-push / just db-pull / just db-seed
-just lint / just format / just check / just clean
-```
+`just` has the same recipes (`just dev`, `just check`, `just deploy pr-test`, …).
 
 **API-specific:**
 
 ```bash
-pnpm --filter @repo/api cf-typegen       # Regenerate wrangler types
-pnpm --filter @repo/api generate:db      # Generate Drizzle migration
-pnpm --filter @repo/api migrate:local    # Apply migrations locally
-pnpm --filter @repo/api test             # Run Vitest
+pnpm --filter @repo/api generate:db      # Generate a Drizzle migration
+pnpm --filter @repo/api generate:auth    # Regenerate the Better Auth schema
 ```
 
-**Web-specific:**
+Migrations are applied by Alchemy: locally on the next `pnpm dev`, remotely on the next deploy.
+Emails sent under `pnpm dev` (e.g. sign-up codes) land in `.alchemy/local/email/*.eml`.
 
-```bash
-pnpm --filter @repo/web build:staging    # Build for staging env
-pnpm --filter @repo/web deploy:staging   # Deploy the web worker to staging
-```
+## Deployment (Alchemy + GitHub Actions)
 
-## Deployment (GitHub Actions — managed by Pinebase)
-
-CI/CD lives in `.github/workflows/deploy.yml`:
-
-- Push to `staging` → quality gates (typecheck, format, lint) + build + deploy of the **preview** app. Push to `main` → same for the **live** app (`main` is only reached via Pinebase's promote flow — never push to it directly).
-- The pipeline decides on its own whether to deploy the api, the web app, or both, by comparing against the `pinebase-deploy-staging` / `pinebase-deploy-production` git tags (last deployed commit per environment). D1 migrations are applied automatically before an api deploy.
-- **Never edit or delete `.github/workflows/deploy.yml` or the `pinebase-deploy-*` tags.** `apps/web/.env.staging` and `apps/web/.env.production` are managed by Pinebase too (public URLs baked into the web build) — leave their Pinebase-written lines intact.
+- `.github/workflows/preview.yml`: every PR into `staging` gets its own `pr-{number}` stage (typecheck,
+  lint, and format run first), updated on each push and destroyed when the PR closes.
+- `staging.yml` / `production.yml`: a merged PR into `staging` deploys `staging`; into `main`, `prod`.
+- Every deploy is reported to project-ops (`scripts/project-ops.sh`).
+- `pr-*` and `staging` sit behind Cloudflare Access; `prod` is public.
 
 ## Conventions
 

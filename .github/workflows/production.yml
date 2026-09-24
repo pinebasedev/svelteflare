@@ -1,0 +1,23 @@
+# Deploys the `prod` stage whenever a PR merges into `main`. Promotion is a
+# git merge: merge `staging` into `main` to ship. Triggered on a merged PR for
+# the same reason as staging.yml; protect `main` the same way.
+
+name: Production deploy
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/deploy-stage.yml
+    with:
+      stage: prod
+      kind: production
+    secrets: inherit

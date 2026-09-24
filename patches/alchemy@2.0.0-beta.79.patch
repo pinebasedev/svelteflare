@@ -1,0 +1,393 @@
+diff --git a/lib/Cloudflare/Access/Application.d.ts b/lib/Cloudflare/Access/Application.d.ts
+index 09e00da195a97d7e9fb18b257dd0f7c968d08d78..fe4fe991a2ec1a864aef7a7e5e269e50810f4c41 100644
+--- a/lib/Cloudflare/Access/Application.d.ts
++++ b/lib/Cloudflare/Access/Application.d.ts
+@@ -114,6 +114,24 @@ export interface InlineApplicationPolicy {
+     /** Custom message shown on the justification screen. */
+     purposeJustificationPrompt?: string;
+ }
++/**
++ * The CORS response Access sends for preflight (`OPTIONS`) requests to the
++ * application, in place of the origin's. See
++ * https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/cors/
++ */
++export interface ApplicationCorsHeaders {
++    allowAllHeaders?: boolean;
++    allowAllMethods?: boolean;
++    allowAllOrigins?: boolean;
++    /** Include credentials (cookies, authorization headers) in cross-origin requests. */
++    allowCredentials?: boolean;
++    allowedHeaders?: string[];
++    allowedMethods?: string[];
++    allowedOrigins?: string[];
++    /** Seconds a browser may cache the preflight result. */
++    maxAge?: number;
++}
++
+ export interface ApplicationProps {
+     /**
+      * The Access application type.
+@@ -184,6 +202,38 @@ export interface ApplicationProps {
+      * Whether the app should be visible in the App Launcher dashboard.
+      */
+     appLauncherVisible?: boolean;
++    /**
++     * The CORS response Access itself sends to preflight requests. Mutually
++     * exclusive with {@link optionsPreflightBypass}. Unset: the live value is
++     * kept.
++     */
++    corsHeaders?: ApplicationCorsHeaders;
++    /**
++     * Let preflight (`OPTIONS`) requests bypass Access and reach the origin,
++     * which then answers CORS itself. Browsers never send cookies on a
++     * preflight, so without this (or {@link corsHeaders}) every credentialed
++     * cross-origin request to the application fails. Mutually exclusive with
++     * {@link corsHeaders}. Unset: the live value is kept.
++     */
++    optionsPreflightBypass?: boolean;
++    /**
++     * `SameSite` attribute of the application's `CF_Authorization` cookie.
++     * Unset: the live value is kept.
++     */
++    sameSiteCookieAttribute?: "none" | "lax" | "strict";
++    /**
++     * `HttpOnly` attribute of the application's `CF_Authorization` cookie.
++     * Unset: the live value is kept.
++     */
++    httpOnlyCookieAttribute?: boolean;
++    /**
++     * On a multi-hostname application, set the `CF_Authorization` cookie on
++     * every hostname in the redirect chain right after login, instead of on
++     * each hostname's first visit. This is what lets a single-page app on one
++     * hostname call an API on another. Cloudflare's default is `true`. Unset:
++     * the live value is kept.
++     */
++    eagerRedirectCookieSetting?: boolean;
+     /**
+      * Tags applied to this application for filtering in the App Launcher.
+      */
+diff --git a/lib/Cloudflare/Access/Application.js b/lib/Cloudflare/Access/Application.js
+index d50f140abae96543692fd72e942bd9c448da2444..1b4505ca07578432d4af544c57c3e8e48c1edadd 100644
+--- a/lib/Cloudflare/Access/Application.js
++++ b/lib/Cloudflare/Access/Application.js
+@@ -276,6 +276,7 @@ export const ApplicationProvider = () => Provider.succeed(Application, {
+                     : Array.from(body.allowedIdps),
+                 autoRedirectToIdentity: body.autoRedirectToIdentity,
+                 appLauncherVisible: body.appLauncherVisible,
++                ...cookieAndCorsSettings(body),
+                 tags: body.tags === undefined ? undefined : Array.from(body.tags),
+                 policies: toRequestPolicies(body.policies),
+                 destinations: body.destinations === undefined
+@@ -318,6 +319,7 @@ export const ApplicationProvider = () => Provider.succeed(Application, {
+                     : Array.from(body.allowedIdps),
+                 autoRedirectToIdentity: body.autoRedirectToIdentity,
+                 appLauncherVisible: body.appLauncherVisible,
++                ...cookieAndCorsSettings(body, observed),
+                 tags: body.tags === undefined ? undefined : Array.from(body.tags),
+                 policies: toRequestPolicies(attachObservedPolicyIds(body.policies, observed.policies)),
+                 destinations: body.destinations === undefined
+@@ -475,6 +477,11 @@ const narrowApp = (raw) => ({
+     allowedIdps: undefArr(raw.allowedIdps ?? undefined),
+     autoRedirectToIdentity: undef(raw.autoRedirectToIdentity),
+     appLauncherVisible: undef(raw.appLauncherVisible),
++    corsHeaders: raw.corsHeaders == null ? undefined : raw.corsHeaders,
++    optionsPreflightBypass: undef(raw.optionsPreflightBypass),
++    sameSiteCookieAttribute: undef(raw.sameSiteCookieAttribute),
++    httpOnlyCookieAttribute: undef(raw.httpOnlyCookieAttribute),
++    eagerRedirectCookieSetting: undef(raw.eagerRedirectCookieSetting),
+     sessionDuration: undef(raw.sessionDuration),
+     tags: undefArr(raw.tags ?? undefined),
+     policies: raw.policies == null
+@@ -612,6 +619,21 @@ const buildMutableBody = (news, resolvedName, resolvedAllowedIdps, resolvedPolic
+     if (news.appLauncherVisible !== undefined) {
+         body.appLauncherVisible = news.appLauncherVisible;
+     }
++    if (news.corsHeaders !== undefined) {
++        body.corsHeaders = news.corsHeaders;
++    }
++    if (news.optionsPreflightBypass !== undefined) {
++        body.optionsPreflightBypass = news.optionsPreflightBypass;
++    }
++    if (news.sameSiteCookieAttribute !== undefined) {
++        body.sameSiteCookieAttribute = news.sameSiteCookieAttribute;
++    }
++    if (news.httpOnlyCookieAttribute !== undefined) {
++        body.httpOnlyCookieAttribute = news.httpOnlyCookieAttribute;
++    }
++    if (news.eagerRedirectCookieSetting !== undefined) {
++        body.eagerRedirectCookieSetting = news.eagerRedirectCookieSetting;
++    }
+     if (news.tags !== undefined) {
+         body.tags = news.tags;
+     }
+@@ -768,6 +790,37 @@ const attachObservedPolicyIds = (desired, observed) => desired === undefined ||
+             ? { ...p, id: o.id }
+             : p;
+     });
++/**
++ * The CORS and cookie settings sent on create/update. The update endpoint is
++ * PUT-style, so a setting the caller doesn't manage is resent with its live
++ * value rather than reset (same reason as `mergeOAuthConfiguration`).
++ * `corsHeaders` and `optionsPreflightBypass` are mutually exclusive on
++ * Cloudflare's side: managing either one stops the other being carried over.
++ */
++const cookieAndCorsSettings = (body, observed) => {
++    const managesCors = body.corsHeaders !== undefined || body.optionsPreflightBypass !== undefined;
++    return {
++        corsHeaders: managesCors ? body.corsHeaders : observed?.corsHeaders,
++        optionsPreflightBypass: managesCors
++            ? body.optionsPreflightBypass
++            : observed?.optionsPreflightBypass,
++        sameSiteCookieAttribute: body.sameSiteCookieAttribute ?? observed?.sameSiteCookieAttribute,
++        httpOnlyCookieAttribute: body.httpOnlyCookieAttribute ?? observed?.httpOnlyCookieAttribute,
++        eagerRedirectCookieSetting: body.eagerRedirectCookieSetting ?? observed?.eagerRedirectCookieSetting,
++    };
++};
++/** Only the settings the caller manages are compared; unset ones never drift. */
++const cookieAndCorsSettingsEqual = (desired, observed) => (desired.corsHeaders === undefined ||
++    (observed.corsHeaders !== undefined &&
++        Object.entries(desired.corsHeaders).every(([key, value]) => value === undefined || jsonEq(value, observed.corsHeaders[key])))) &&
++    (desired.optionsPreflightBypass === undefined ||
++        desired.optionsPreflightBypass === (observed.optionsPreflightBypass ?? false)) &&
++    (desired.sameSiteCookieAttribute === undefined ||
++        desired.sameSiteCookieAttribute === observed.sameSiteCookieAttribute) &&
++    (desired.httpOnlyCookieAttribute === undefined ||
++        desired.httpOnlyCookieAttribute === observed.httpOnlyCookieAttribute) &&
++    (desired.eagerRedirectCookieSetting === undefined ||
++        desired.eagerRedirectCookieSetting === observed.eagerRedirectCookieSetting);
+ const bodyEqualsObserved = (desired, observed) => {
+     if (desired.name !== undefined && desired.name !== observed.name) {
+         return false;
+@@ -808,6 +861,9 @@ const bodyEqualsObserved = (desired, observed) => {
+         !arrayEquals(desired.tags, observed.tags, jsonEq)) {
+         return false;
+     }
++    if (!cookieAndCorsSettingsEqual(desired, observed)) {
++        return false;
++    }
+     if (!policiesEq(desired.policies, observed.policies)) {
+         return false;
+     }
+diff --git a/src/Cloudflare/Access/Application.ts b/src/Cloudflare/Access/Application.ts
+index 2c6c811c26cf3e359ada46e461282284ec91f4d5..fc79750c81dba65507da9756d7c5ecbafb579d25 100644
+--- a/src/Cloudflare/Access/Application.ts
++++ b/src/Cloudflare/Access/Application.ts
+@@ -136,6 +136,24 @@ export interface InlineApplicationPolicy {
+   purposeJustificationPrompt?: string;
+ }
+ 
++/**
++ * The CORS response Access sends for preflight (`OPTIONS`) requests to the
++ * application, in place of the origin's. See
++ * https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/cors/
++ */
++export interface ApplicationCorsHeaders {
++  allowAllHeaders?: boolean;
++  allowAllMethods?: boolean;
++  allowAllOrigins?: boolean;
++  /** Include credentials (cookies, authorization headers) in cross-origin requests. */
++  allowCredentials?: boolean;
++  allowedHeaders?: string[];
++  allowedMethods?: string[];
++  allowedOrigins?: string[];
++  /** Seconds a browser may cache the preflight result. */
++  maxAge?: number;
++}
++
+ export interface ApplicationProps {
+   /**
+    * The Access application type.
+@@ -206,6 +224,38 @@ export interface ApplicationProps {
+    * Whether the app should be visible in the App Launcher dashboard.
+    */
+   appLauncherVisible?: boolean;
++  /**
++   * The CORS response Access itself sends to preflight requests. Mutually
++   * exclusive with {@link optionsPreflightBypass}. Unset: the live value is
++   * kept.
++   */
++  corsHeaders?: ApplicationCorsHeaders;
++  /**
++   * Let preflight (`OPTIONS`) requests bypass Access and reach the origin,
++   * which then answers CORS itself. Browsers never send cookies on a
++   * preflight, so without this (or {@link corsHeaders}) every credentialed
++   * cross-origin request to the application fails. Mutually exclusive with
++   * {@link corsHeaders}. Unset: the live value is kept.
++   */
++  optionsPreflightBypass?: boolean;
++  /**
++   * `SameSite` attribute of the application's `CF_Authorization` cookie.
++   * Unset: the live value is kept.
++   */
++  sameSiteCookieAttribute?: "none" | "lax" | "strict";
++  /**
++   * `HttpOnly` attribute of the application's `CF_Authorization` cookie.
++   * Unset: the live value is kept.
++   */
++  httpOnlyCookieAttribute?: boolean;
++  /**
++   * On a multi-hostname application, set the `CF_Authorization` cookie on
++   * every hostname in the redirect chain right after login, instead of on
++   * each hostname's first visit. This is what lets a single-page app on one
++   * hostname call an API on another. Cloudflare's default is `true`. Unset:
++   * the live value is kept.
++   */
++  eagerRedirectCookieSetting?: boolean;
+   /**
+    * Tags applied to this application for filtering in the App Launcher.
+    */
+@@ -617,6 +667,7 @@ export const ApplicationProvider = () =>
+                 : Array.from(body.allowedIdps),
+             autoRedirectToIdentity: body.autoRedirectToIdentity,
+             appLauncherVisible: body.appLauncherVisible,
++            ...cookieAndCorsSettings(body),
+             tags: body.tags === undefined ? undefined : Array.from(body.tags),
+             policies: toRequestPolicies(body.policies),
+             destinations:
+@@ -670,6 +721,7 @@ export const ApplicationProvider = () =>
+                 : Array.from(body.allowedIdps),
+             autoRedirectToIdentity: body.autoRedirectToIdentity,
+             appLauncherVisible: body.appLauncherVisible,
++            ...cookieAndCorsSettings(body, observed),
+             tags: body.tags === undefined ? undefined : Array.from(body.tags),
+             policies: toRequestPolicies(
+               attachObservedPolicyIds(body.policies, observed.policies),
+@@ -884,6 +936,11 @@ interface ObservedApp {
+   readonly allowedIdps?: ReadonlyArray<string>;
+   readonly autoRedirectToIdentity?: boolean;
+   readonly appLauncherVisible?: boolean;
++  readonly corsHeaders?: ApplicationCorsHeaders;
++  readonly optionsPreflightBypass?: boolean;
++  readonly sameSiteCookieAttribute?: string;
++  readonly httpOnlyCookieAttribute?: boolean;
++  readonly eagerRedirectCookieSetting?: boolean;
+   readonly sessionDuration?: string;
+   readonly tags?: ReadonlyArray<string>;
+   readonly policies?: ReadonlyArray<ObservedPolicy>;
+@@ -955,6 +1012,11 @@ const narrowApp = (raw: {
+   allowedIdps?: ReadonlyArray<string> | null;
+   autoRedirectToIdentity?: boolean | null;
+   appLauncherVisible?: boolean | null;
++  corsHeaders?: unknown;
++  optionsPreflightBypass?: boolean | null;
++  sameSiteCookieAttribute?: string | null;
++  httpOnlyCookieAttribute?: boolean | null;
++  eagerRedirectCookieSetting?: boolean | null;
+   sessionDuration?: string | null;
+   tags?: ReadonlyArray<string> | null;
+   policies?: ReadonlyArray<unknown> | null;
+@@ -974,6 +1036,14 @@ const narrowApp = (raw: {
+   allowedIdps: undefArr(raw.allowedIdps ?? undefined),
+   autoRedirectToIdentity: undef(raw.autoRedirectToIdentity),
+   appLauncherVisible: undef(raw.appLauncherVisible),
++  corsHeaders:
++    raw.corsHeaders == null
++      ? undefined
++      : (raw.corsHeaders as ApplicationCorsHeaders),
++  optionsPreflightBypass: undef(raw.optionsPreflightBypass),
++  sameSiteCookieAttribute: undef(raw.sameSiteCookieAttribute),
++  httpOnlyCookieAttribute: undef(raw.httpOnlyCookieAttribute),
++  eagerRedirectCookieSetting: undef(raw.eagerRedirectCookieSetting),
+   sessionDuration: undef(raw.sessionDuration),
+   tags: undefArr(raw.tags ?? undefined),
+   policies:
+@@ -1042,6 +1112,11 @@ interface AppMutableBody {
+   allowedIdps?: ReadonlyArray<string>;
+   autoRedirectToIdentity?: boolean;
+   appLauncherVisible?: boolean;
++  corsHeaders?: ApplicationCorsHeaders;
++  optionsPreflightBypass?: boolean;
++  sameSiteCookieAttribute?: "none" | "lax" | "strict";
++  httpOnlyCookieAttribute?: boolean;
++  eagerRedirectCookieSetting?: boolean;
+   tags?: ReadonlyArray<string>;
+   policies?: ReadonlyArray<ResolvedPolicy>;
+ }
+@@ -1231,6 +1306,21 @@ const buildMutableBody = (
+   if (news.appLauncherVisible !== undefined) {
+     body.appLauncherVisible = news.appLauncherVisible;
+   }
++  if (news.corsHeaders !== undefined) {
++    body.corsHeaders = news.corsHeaders;
++  }
++  if (news.optionsPreflightBypass !== undefined) {
++    body.optionsPreflightBypass = news.optionsPreflightBypass;
++  }
++  if (news.sameSiteCookieAttribute !== undefined) {
++    body.sameSiteCookieAttribute = news.sameSiteCookieAttribute;
++  }
++  if (news.httpOnlyCookieAttribute !== undefined) {
++    body.httpOnlyCookieAttribute = news.httpOnlyCookieAttribute;
++  }
++  if (news.eagerRedirectCookieSetting !== undefined) {
++    body.eagerRedirectCookieSetting = news.eagerRedirectCookieSetting;
++  }
+   if (news.tags !== undefined) {
+     body.tags = news.tags;
+   }
+@@ -1427,6 +1517,55 @@ const attachObservedPolicyIds = (
+           : p;
+       });
+ 
++/**
++ * The CORS and cookie settings sent on create/update. The update endpoint is
++ * PUT-style, so a setting the caller doesn't manage is resent with its live
++ * value rather than reset (same reason as `mergeOAuthConfiguration`).
++ * `corsHeaders` and `optionsPreflightBypass` are mutually exclusive on
++ * Cloudflare's side: managing either one stops the other being carried over.
++ */
++const cookieAndCorsSettings = (body: AppMutableBody, observed?: ObservedApp) => {
++  const managesCors =
++    body.corsHeaders !== undefined || body.optionsPreflightBypass !== undefined;
++  return {
++    corsHeaders: managesCors ? body.corsHeaders : observed?.corsHeaders,
++    optionsPreflightBypass: managesCors
++      ? body.optionsPreflightBypass
++      : observed?.optionsPreflightBypass,
++    sameSiteCookieAttribute:
++      body.sameSiteCookieAttribute ?? observed?.sameSiteCookieAttribute,
++    httpOnlyCookieAttribute:
++      body.httpOnlyCookieAttribute ?? observed?.httpOnlyCookieAttribute,
++    eagerRedirectCookieSetting:
++      body.eagerRedirectCookieSetting ?? observed?.eagerRedirectCookieSetting,
++  };
++};
++
++/** Only the settings the caller manages are compared; unset ones never drift. */
++const cookieAndCorsSettingsEqual = (
++  desired: AppMutableBody,
++  observed: ObservedApp,
++): boolean =>
++  (desired.corsHeaders === undefined ||
++    (observed.corsHeaders !== undefined &&
++      Object.entries(desired.corsHeaders).every(
++        ([key, value]) =>
++          value === undefined ||
++          jsonEq(
++            value,
++            (observed.corsHeaders as Record<string, unknown>)[key],
++          ),
++      ))) &&
++  (desired.optionsPreflightBypass === undefined ||
++    desired.optionsPreflightBypass ===
++      (observed.optionsPreflightBypass ?? false)) &&
++  (desired.sameSiteCookieAttribute === undefined ||
++    desired.sameSiteCookieAttribute === observed.sameSiteCookieAttribute) &&
++  (desired.httpOnlyCookieAttribute === undefined ||
++    desired.httpOnlyCookieAttribute === observed.httpOnlyCookieAttribute) &&
++  (desired.eagerRedirectCookieSetting === undefined ||
++    desired.eagerRedirectCookieSetting === observed.eagerRedirectCookieSetting);
++
+ const bodyEqualsObserved = (
+   desired: AppMutableBody,
+   observed: ObservedApp,
+@@ -1487,6 +1626,9 @@ const bodyEqualsObserved = (
+   ) {
+     return false;
+   }
++  if (!cookieAndCorsSettingsEqual(desired, observed)) {
++    return false;
++  }
+   if (!policiesEq(desired.policies, observed.policies)) {
+     return false;
+   }

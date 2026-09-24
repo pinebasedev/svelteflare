@@ -66,7 +66,7 @@ Only proceed past this step once the user agrees.
 
 1. Add to `apps/api/src/db/schema.ts` using drizzle-orm's `sqliteTable`
 2. Generate migration: `pnpm --filter api generate:db`
-3. Apply locally: `pnpm --filter api migrate:local`
+3. Apply locally: restart `pnpm dev` (it applies pending migrations on start)
 
 ### Adding a route
 
@@ -136,7 +136,7 @@ Follow the singleton runes class pattern in `apps/web/src/lib/state/settings.sve
 
 ## Step 6: Summarize changes
 
-After implementing, run any needed follow-up commands yourself (e.g. `pnpm --filter api migrate:local`), then summarize for the user in plain language — what changed from their point of view, not which files moved:
+After implementing, run any needed follow-up commands yourself (e.g. restart `pnpm dev` after a new migration), then summarize for the user in plain language — what changed from their point of view, not which files moved:
 
 ```
 "Done! Your app now has a Notes page. You can create notes, see your

@@ -30,6 +30,7 @@ You're comfortable with Svelte/TypeScript and want to skip the two weeks of boil
 | Database | Drizzle ORM + Cloudflare D1                                           |
 | Billing  | Stripe subscriptions                                                  |
 | Styling  | Tailwind v4 + shadcn-svelte with semantic tokens                      |
+| Infra    | [Alchemy](https://alchemy.run) (dev, deploy) + GitHub Actions         |
 | Monorepo | pnpm workspaces + Turborepo + just                                    |
 
 ## Monorepo layout
@@ -39,6 +40,7 @@ apps/
   web/         SvelteKit SPA — the app template (search-and-replace "Demo App")
   api/         Hono Cloudflare Worker — auth, database, billing
   marketing/   Static, prerendered marketing site — delete or repurpose for your product
+alchemy/       Cloudflare resources, one file each; alchemy.run.ts assembles them per stage
 packages/
   ui/                  Theme + component library (@repo/ui) — single source of truth for how things look
   lint/                Theme/color-token lint rule, the oxlint plugin, and the Svelte-only ESLint config
@@ -50,7 +52,8 @@ packages/
 - [Node 24](https://nodejs.org) (see `.nvmrc`)
 - [pnpm](https://pnpm.io) — the exact version is pinned via `packageManager` and Corepack
 - [just](https://github.com/casey/just) — task runner used for all common commands
-- A [Cloudflare](https://dash.cloudflare.com) account (free tier is enough) once you're ready to deploy
+- A [Cloudflare](https://dash.cloudflare.com) account (free tier is enough). `pnpm dev` runs
+  everything locally but needs Alchemy connected to it once: `pnpm alchemy profile edit --add Cloudflare`
 
 ## Quick start
 
@@ -58,33 +61,16 @@ packages/
 git clone https://github.com/pinebasedev/svelteflare.git my-app
 cd my-app
 pnpm install
-cp apps/web/.env.example apps/web/.env
-cp apps/api/.dev.vars.example apps/api/.dev.vars
-just migrate-local   # create the local D1 database
-just dev             # marketing on :9001, web on :9002, api on :9003
+pnpm dev             # marketing on :9001, web on :9002, api on :9003
 ```
 
-`apps/marketing` needs no configuration to run locally — it's a static site with no auth or API calls.
+`pnpm dev` is `alchemy dev`: the API runs in workerd with local D1, R2, and email simulators, and the
+web app and marketing site run on their own Vite dev servers. It applies the database migrations on
+start and needs no configuration. Emails, such as the sign-up verification code, are written to
+`.alchemy/local/email/*.eml` instead of being sent.
 
-### `apps/web/.env`
-
-```sh
-PUBLIC_APP_URL=http://localhost:9002
-PUBLIC_API_URL=http://localhost:9003
-PUBLIC_BETTER_AUTH_URL=http://localhost:9003
-PUBLIC_GOOGLE_CLIENT_ID=   # only needed for "Sign in with Google"
-```
-
-### `apps/api/.dev.vars`
-
-```sh
-BETTER_AUTH_SECRET=     # required — generate with: openssl rand -base64 32
-GOOGLE_CLIENT_SECRET=   # only needed for "Sign in with Google"
-STRIPE_SECRET_KEY=      # only needed for billing
-STRIPE_WEBHOOK_SECRET=  # only needed for billing
-```
-
-You can run `just dev` with only `BETTER_AUTH_SECRET` set — Google login and billing are optional and can be added later without touching any other config.
+To turn on Google login or billing, copy `.env.example` to `.env` and fill in `GOOGLE_CLIENT_SECRET`
+and `PUBLIC_GOOGLE_CLIENT_ID`, or the `STRIPE_*` keys. Everything else in it is only for deploying.
 
 ## Commands
 
@@ -92,19 +78,12 @@ Run `just` with no arguments to see every recipe, grouped. The most common ones:
 
 ```sh
 just dev               # run all three apps together (web, api, marketing)
-just dev-web           # run a single app
-just check             # typecheck everything
+just check             # typecheck everything, including the Alchemy stack
 just lint              # oxlint + ESLint (Svelte markup only)
 just format            # auto-format with oxfmt
-
-just migrate-local     # apply D1 migrations to your local database
 just generate          # generate a new migration from the Drizzle schema
-just studio            # open Drizzle Studio against the local DB
-
-pnpm --filter @repo/api test   # run the API's Vitest suite
+just deploy pr-test    # deploy a throwaway stage by hand; `just destroy pr-test` removes it
 ```
-
-Build and deploy recipes follow the same `<action>-<app>-<environment>` shape, e.g. `just build-web`, `just deploy-api-staging`, `just deploy-marketing-production` — see the [Deploying](#deploying) section below.
 
 ## Theming
 
@@ -112,16 +91,83 @@ The theme is the combination of semantic variables in `packages/ui/src/global.cs
 
 ## Deploying
 
-Each app is a separate Cloudflare Worker. After `wrangler login`:
+[Alchemy](https://alchemy.run) provisions everything from `alchemy.run.ts`: the API Worker with its
+D1 database and R2 bucket, and the web app and marketing site as static-asset Workers. There's no
+`wrangler.jsonc`. Each environment is an Alchemy **stage**, deployed by GitHub Actions:
 
-```sh
-just migrate-staging
-just deploy-api-staging
-just deploy-web-staging
-just deploy-marketing-staging
-```
+| Stage         | Deployed when                                                  | Workflow         |
+| ------------- | -------------------------------------------------------------- | ---------------- |
+| `pr-{number}` | a PR into `staging` is opened or updated                       | `preview.yml`    |
+| `staging`     | a PR merges into `staging`                                     | `staging.yml`    |
+| `prod`        | a PR merges into `main` (promote: merge `staging` into `main`) | `production.yml` |
 
-Production equivalents: `just deploy-*-production` (e.g. `just deploy-api-production`). Set the API's secrets with `wrangler secret put <NAME> --env <staging|production>`, and update the custom domains in each app's `wrangler.jsonc` before going live.
+A PR's stage is destroyed when the PR closes. Nothing in CI can destroy `staging` or `prod`, and
+`prod`'s database and bucket are kept even by a hand-run `pnpm run destroy`. On `pr-*` and `staging` the web
+app, API, and marketing site sit behind one Cloudflare Access application, and the API also verifies
+the Access token itself; `prod` is public. Every deploy is also reported
+to project-ops, Pinebase's deployment dashboard, when `IDP_API_URL` is set.
+
+### One-time setup
+
+1. `pnpm bootstrap:github` (see `alchemy/github.ts` for the admin profile it needs) mints a
+   Cloudflare API token scoped to exactly what the stack deploys and stores it in the repo's secrets,
+   along with the project-ops token. It also pushes the variables below if they're in your `.env`.
+2. Set the rest in the repo's **Settings → Secrets and variables → Actions**:
+
+| Name                                                          | Kind        | Needed for                                                 |
+| ------------------------------------------------------------- | ----------- | ---------------------------------------------------------- |
+| `BETTER_AUTH_SECRET`                                          | secret      | every stage (`openssl rand -base64 32`)                    |
+| `CLOUDFLARE_WORKERS_SUBDOMAIN`                                | variable    | every stage on `workers.dev` (dashboard: Workers & Pages)  |
+| `CF_ACCESS_ALLOW_EMAIL`                                       | secret      | `pr-*`, `staging`: who may log in (comma-separated)        |
+| `CF_GOOGLE_IDP_ID`                                            | variable    | `pr-*`, `staging`: the Zero Trust Google identity provider |
+| `CF_ACCESS_TEAM_DOMAIN`                                       | variable    | `pr-*`, `staging`: the Zero Trust team name                |
+| `GOOGLE_CLIENT_SECRET`, `STRIPE_SECRET_KEY`                   | secret      | optional features                                          |
+| `STRIPE_API_KEY`                                              | secret      | registering each stage's Stripe webhook endpoint           |
+| `PUBLIC_GOOGLE_CLIENT_ID`, `EMAIL_FROM_*`                     | variable    | optional features                                          |
+| `PROD_API_DOMAIN`, `PROD_APP_DOMAIN`, `PROD_MARKETING_DOMAIN` | variable    | optional custom domains on `prod`                          |
+| `IDP_API_URL`, `CF_ACCESS_CLIENT_ID`/`_SECRET`                | var/secrets | reporting to project-ops                                   |
+
+Until `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` exist, every workflow exits green without
+deploying.
+
+Repository-level values serve `staging` and previews. For `prod`, create a GitHub Environment named
+`production` and set the values that must differ there: the live-mode `STRIPE_SECRET_KEY`, a live
+restricted `STRIPE_API_KEY` (webhook endpoints: write only), and its own `BETTER_AUTH_SECRET`.
+Environment secrets override repository ones for the prod deploy only.
+
+### Stripe
+
+`staging` and every `pr-*` stage share one Stripe sandbox; `prod` uses live mode. Each stage's
+webhook endpoint is registered by the stack (`alchemy/Stripe.ts`) and its signing secret passed
+straight to the API: created and deleted with a PR's preview, created once for `staging`, and kept
+even on destroy for `prod`. Because the sandbox is shared, each endpoint also receives the other
+stages' events, which better-auth ignores. Stripe allows 16 endpoints per account, so about 15 open
+PRs can have webhooks at once. On the gated stages, Access lets exactly the webhook path through;
+Stripe's signature, which better-auth checks, protects it. Locally, run
+`stripe listen --forward-to localhost:9003/v1/auth/stripe/webhook` and put the secret it prints in
+`.env` as `STRIPE_WEBHOOK_SECRET`.
+
+### By hand
+
+With the same values in `.env`, `pnpm run deploy --stage pr-test` deploys a throwaway stage from your
+machine and `pnpm run destroy --stage pr-test` removes it. Local state lives in `.alchemy/`; CI keeps its
+state in Cloudflare.
+
+### Known gaps
+
+- **Email.** Sending needs Email Routing on the sender's domain, so only `prod` on a custom domain gets
+  the `EMAIL` binding. Enable Email Routing on that zone and verify `EMAIL_FROM_ADDRESS` in the
+  dashboard first. On `workers.dev` stages sign-up emails are skipped (logged), so email sign-up
+  can't be completed there; Google sign-in can, once its redirect URI is registered for that stage.
+- **Custom domains** need zone permissions the CI token doesn't have (see
+  `alchemy/ciTokenPolicies.ts`).
+- **Cross-site cookies.** The web app and API are separate hosts. On `workers.dev` they're the same
+  site (`workers.dev` is a public suffix, so both share `<account>.workers.dev`), and so are sibling
+  subdomains of one domain (`app.` and `api.`). Unrelated domains would make the session cookie
+  cross-site, so keep production on one domain.
+- **Patched Alchemy.** Alchemy 2.0.0-beta.79 doesn't expose the Access application's CORS and cookie
+  settings the gated API needs; `patches/alchemy@2.0.0-beta.79.patch` adds them. Upgrading Alchemy
+  fails the install until the patch is redone or dropped (drop it once Alchemy ships the settings).
 
 ## Working with an AI coding agent
 

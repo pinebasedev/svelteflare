@@ -6,10 +6,7 @@
 	const commands = `git clone https://github.com/pinebasedev/svelteflare.git my-app
 cd my-app
 pnpm install
-cp apps/web/.env.example apps/web/.env
-cp apps/api/.dev.vars.example apps/api/.dev.vars
-just migrate-local   # create the local D1 database
-just dev             # marketing on :9001, web on :9002, api on :9003`;
+pnpm dev             # marketing on :9001, web on :9002, api on :9003`;
 
 	let copied = $state(false);
 

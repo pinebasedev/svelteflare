@@ -14,6 +14,14 @@ const sendEmail = async (
     text: string;
   }
 ) => {
+  // No `EMAIL` binding on stages without Email Routing (workers.dev).
+  if (!env.EMAIL) {
+    console.warn(
+      JSON.stringify({ type: "email_skipped", level: "warn", to, subject })
+    );
+    return;
+  }
+
   const from = env.EMAIL_FROM_ADDRESS;
 
   const msg = createMimeMessage();

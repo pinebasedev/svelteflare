@@ -202,22 +202,12 @@ export type NewWidget = typeof widget.$inferInsert;
 just generate
 ```
 
-3. Apply to local D1:
-
-```bash
-just migrate-local
-```
-
-4. Apply to staging/production when ready:
-
-```bash
-just migrate-staging
-just migrate-production
-```
+3. Apply it: `pnpm dev` applies pending migrations to the local D1 on start (restart it if it's
+   running), and every deploy applies them to that stage's database.
 
 ### Adding a column to an existing table
 
-Same flow — edit the schema, `just generate`, `just migrate-local`. Never edit migration SQL files by hand.
+Same flow — edit the schema, `just generate`, restart `pnpm dev`. Never edit migration SQL files by hand.
 
 ### DB access in routes
 
@@ -348,30 +338,16 @@ getAuth(db, c.env);
 getDb(c.env);
 ```
 
-Secrets are set via:
+Adding a binding, secret, or var takes three edits:
 
-```bash
-wrangler secret put MY_SECRET          # production
-wrangler secret put MY_SECRET --env staging  # staging
-```
-
-For local development, put them in `apps/api/.dev.vars` (not committed).
-
-Public vars (non-secret) go in `wrangler.jsonc` under `vars`.
-
-### Regenerating Cloudflare types
-
-After adding a new binding or secret, regenerate the `Env` interface:
-
-```bash
-just cf-typegen
-```
-
-This updates `apps/api/src/workerConfiguration.d.ts`.
+1. Declare it on the Worker's `env` in `alchemy/Api.ts` (a secret: `Config.Redacted('MY_SECRET')`).
+2. Add it to `AppBindings` in `apps/api/src/types.d.ts` by hand.
+3. Give it a value: the root `.env` locally (`.env.example` lists the names), and a GitHub Actions
+   secret or variable passed to the deploy step in `.github/workflows/` for CI.
 
 ### Email (Cloudflare Email Workers)
 
-The `EMAIL` binding is a `SendEmail` service. Access it via `c.env.EMAIL`. Sender address and name come from `c.env.EMAIL_FROM_ADDRESS` and `c.env.EMAIL_FROM_NAME`. Better Auth's emailOTP plugin uses this binding automatically for OTP emails.
+The `EMAIL` binding is a `SendEmail` service, and it's optional: only local dev (a simulator that writes `.alchemy/local/email/*.eml`) and a prod stage on its own domain have it. `helpers/email.ts` logs and skips when it's absent. Access it via `c.env.EMAIL`. Sender address and name come from `c.env.EMAIL_FROM_ADDRESS` and `c.env.EMAIL_FROM_NAME`. Better Auth's emailOTP plugin uses this binding automatically for OTP emails.
 
 ### Hono RPC type safety
 

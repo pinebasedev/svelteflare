@@ -11,12 +11,6 @@
     "clean": {
       "cache": false
     },
-    "cf-typegen": {
-      "dependsOn": ["clean"],
-      "cache": false,
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": []
-    },
     "check": {
       "dependsOn": ["clean", "^check"],
       "cache": false,
@@ -28,36 +22,11 @@
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": []
     },
-    "build:development": {
-      "dependsOn": ["^build:development"],
+    "build": {
+      "dependsOn": ["^build"],
       "cache": false,
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".svelte-kit/**", "build/**", "dist/**"]
-    },
-    "build:staging": {
-      "dependsOn": ["clean", "cf-typegen", "check", "lint", "^build:staging"],
-      "cache": false,
-      "inputs": ["$TURBO_DEFAULT$", ".env*", "src/workerConfiguration.d.ts"],
-      "outputs": [".svelte-kit/**", "build/**"]
-    },
-    "build:production": {
-      "dependsOn": ["clean", "cf-typegen", "check", "lint", "^build:production"],
-      "cache": false,
-      "inputs": ["$TURBO_DEFAULT$", ".env*", "src/workerConfiguration.d.ts"],
-      "outputs": [".svelte-kit/**", "build/**"],
-      "env": ["CF_ENV"]
-    },
-    "deploy:staging": {
-      "cache": false,
-      "dependsOn": ["build:staging"],
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": []
-    },
-    "deploy:production": {
-      "cache": false,
-      "dependsOn": ["build:production"],
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": []
+      "outputs": [".svelte-kit/**", "dist/**"]
     }
   }
 }

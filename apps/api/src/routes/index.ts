@@ -1,6 +1,7 @@
 import { every } from "hono/combine";
 import { Hono, type Context } from "hono";
 import type { AppEnv } from "../types";
+import { accessJwtMiddleware } from "../middleware/access-jwt";
 import { requireAuthenticated } from "../middleware/authorization";
 import { csrfMiddleware } from "../middleware/csrf";
 import { authMiddleware, type AppTestOverrides } from "../middleware/auth";
@@ -21,6 +22,7 @@ export const createAppRoutes = (options: AppTestOverrides = {}) => {
   const baseRouteMiddleware = every(
     timeoutMiddleware(options.timeouts?.ms ?? 30_000),
     corsMiddleware,
+    accessJwtMiddleware,
     bodyLimitMiddleware,
     authMiddleware(options),
     subscriptionMiddleware(options),

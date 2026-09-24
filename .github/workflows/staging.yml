@@ -1,0 +1,26 @@
+# Deploys the `staging` stage whenever a PR merges into `staging`.
+#
+# A merged PR, not `push: branches: [staging]`: a push trigger would also fire
+# on a direct `git push origin staging` that skipped review. Add branch
+# protection ("require a pull request before merging") to block such pushes.
+# The merged PR's own `pr-*` stage is torn down by preview.yml.
+
+name: Staging deploy
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [staging]
+
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/deploy-stage.yml
+    with:
+      stage: staging
+      kind: staging
+    secrets: inherit

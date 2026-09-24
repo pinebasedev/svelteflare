@@ -34,4 +34,4 @@ Detailed guides live in `.agents/skills/`; read the relevant one before working 
 - `svelte-core-bestpractices` — Svelte 5 runes idioms
 - `svelte-code-writer` — Svelte docs lookup and autofixer CLI
 
-Deployment is managed by Pinebase: never edit `.github/workflows/deploy.yml` or touch `pinebase-deploy-*` tags.
+Infrastructure lives in `alchemy.run.ts` and `alchemy/` (Alchemy). GitHub Actions deploys it: a `pr-{number}` preview per pull request into `staging`, `staging` on merge into `staging`, `prod` on merge into `main`. A new binding goes in `alchemy/Api.ts` and, by hand, in `AppBindings` (`apps/api/src/types.d.ts`).
