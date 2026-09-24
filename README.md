@@ -105,7 +105,7 @@ A PR's stage is destroyed when the PR closes. Nothing in CI can destroy `staging
 `prod`'s database and bucket are kept even by a hand-run `pnpm run destroy`. On `pr-*` and `staging` the web
 app, API, and marketing site sit behind one Cloudflare Access application, and the API also verifies
 the Access token itself; `prod` is public. Every deploy is also reported
-to project-ops, Pinebase's deployment dashboard, when `IDP_API_URL` is set.
+to project-ops, Pinebase's deployment dashboard, when `PROJECT_OPS_URL` is set.
 
 ### One-time setup
 
@@ -130,7 +130,7 @@ to project-ops, Pinebase's deployment dashboard, when `IDP_API_URL` is set.
 | `STRIPE_API_KEY`                                              | secret      | registering each stage's Stripe webhook endpoint           |
 | `PUBLIC_GOOGLE_CLIENT_ID`, `EMAIL_FROM_*`                     | variable    | optional features                                          |
 | `PROD_API_DOMAIN`, `PROD_APP_DOMAIN`, `PROD_MARKETING_DOMAIN` | variable    | optional custom domains on `prod`                          |
-| `IDP_API_URL`, `CF_ACCESS_CLIENT_ID`/`_SECRET`                | var/secrets | reporting to project-ops                                   |
+| `PROJECT_OPS_URL`, `CF_ACCESS_CLIENT_ID`/`_SECRET`            | var/secrets | reporting to project-ops                                   |
 
 Until `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` exist, every workflow exits green without
 deploying.

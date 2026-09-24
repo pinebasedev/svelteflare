@@ -110,10 +110,10 @@ export default Alchemy.Stack(
           { cause }
         )
     }).pipe(Effect.orDie);
-    yield* GitHub.Secret('idp-project-token', {
+    yield* GitHub.Secret('project-ops-token', {
       owner,
       repository,
-      name: 'IDP_PROJECT_TOKEN',
+      name: 'PROJECT_OPS_TOKEN',
       value: Redacted.make(bearerToken)
     });
 

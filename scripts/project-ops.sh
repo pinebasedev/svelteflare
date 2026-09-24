@@ -5,12 +5,12 @@
 #   project-ops.sh complete <deployment-id> done [preview-url]
 #   project-ops.sh complete <deployment-id> failed
 #
-# Needs IDP_API_URL, IDP_PROJECT_TOKEN, CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET.
+# Needs PROJECT_OPS_URL, PROJECT_OPS_TOKEN, CF_ACCESS_CLIENT_ID, CF_ACCESS_CLIENT_SECRET.
 set -euo pipefail
 
 call() {
-  curl -fsS -X POST "$IDP_API_URL$1" \
-    -H "Authorization: Bearer $IDP_PROJECT_TOKEN" \
+  curl -fsS -X POST "$PROJECT_OPS_URL$1" \
+    -H "Authorization: Bearer $PROJECT_OPS_TOKEN" \
     -H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" \
     -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET" \
     -H "Content-Type: application/json" \

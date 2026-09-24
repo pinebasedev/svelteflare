@@ -36,8 +36,8 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_WORKERS_SUBDOMAIN: ${{ vars.CLOUDFLARE_WORKERS_SUBDOMAIN }}
-      IDP_API_URL: ${{ vars.IDP_API_URL }}
-      IDP_PROJECT_TOKEN: ${{ secrets.IDP_PROJECT_TOKEN }}
+      PROJECT_OPS_URL: ${{ vars.PROJECT_OPS_URL }}
+      PROJECT_OPS_TOKEN: ${{ secrets.PROJECT_OPS_TOKEN }}
       CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
       CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
       PROD_API_DOMAIN: ${{ vars.PROD_API_DOMAIN }}
@@ -64,7 +64,7 @@ jobs:
 
       - name: Register deployment
         id: register
-        if: steps.gate.outputs.configured == 'true' && env.IDP_API_URL != ''
+        if: steps.gate.outputs.configured == 'true' && env.PROJECT_OPS_URL != ''
         run: |
           id=$(scripts/project-ops.sh register "$STAGE" "${{ inputs.kind }}" "$SHA")
           echo "deployment_id=$id" >> "$GITHUB_OUTPUT"

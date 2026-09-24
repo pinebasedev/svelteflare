@@ -1,6 +1,6 @@
 # One preview environment per open pull request into `staging`: Alchemy stage
 # `pr-{number}`, redeployed on every push, destroyed when the PR closes. Each
-# deploy is reported to project-ops once IDP_API_URL is set.
+# deploy is reported to project-ops once PROJECT_OPS_URL is set.
 #
 # Exits green without doing anything until the Cloudflare secrets exist, so
 # early PRs never show as failures. Secrets and variables: see README.md,
@@ -61,8 +61,8 @@ jobs:
       contents: read
       pull-requests: write
     env:
-      IDP_API_URL: ${{ vars.IDP_API_URL }}
-      IDP_PROJECT_TOKEN: ${{ secrets.IDP_PROJECT_TOKEN }}
+      PROJECT_OPS_URL: ${{ vars.PROJECT_OPS_URL }}
+      PROJECT_OPS_TOKEN: ${{ secrets.PROJECT_OPS_TOKEN }}
       CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
       CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
     steps:
@@ -84,7 +84,7 @@ jobs:
 
       - name: Register deployment
         id: register
-        if: steps.gate.outputs.configured == 'true' && env.IDP_API_URL != ''
+        if: steps.gate.outputs.configured == 'true' && env.PROJECT_OPS_URL != ''
         run: |
           id=$(scripts/project-ops.sh register "$STAGE" ephemeral "$GITHUB_SHA" "$PULL_REQUEST")
           echo "deployment_id=$id" >> "$GITHUB_OUTPUT"
