@@ -40,9 +40,9 @@
 		},
 		{
 			icon: CloudIcon,
-			title: 'Cloudflare-native',
+			title: 'Deploys itself',
 			description:
-				'Workers, one D1 database, email delivery, and static assets — no servers to manage and a generous free tier.'
+				'Alchemy provisions Workers, D1, R2, and email per stage. Every PR gets its own preview behind Cloudflare Access; staging and prod deploy from GitHub Actions.'
 		}
 	];
 </script>

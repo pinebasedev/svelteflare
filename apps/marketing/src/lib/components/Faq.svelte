@@ -10,12 +10,17 @@
 		{
 			question: 'What do I need to run it?',
 			answer:
-				'Node 24+, pnpm, and a free Cloudflare account. Stripe and Google OAuth keys are only needed when you want billing and social login — the app runs locally without them.'
+				'Node 24+, pnpm, and a free Cloudflare account. pnpm dev runs everything locally with simulated D1, R2, and email, no .env needed. Stripe and Google OAuth keys are only needed when you want billing and social login.'
 		},
 		{
 			question: 'Why a SPA plus a separate API?',
 			answer:
 				'The frontend is a static SvelteKit SPA served from the edge; all logic lives in a Hono Worker. That split keeps deploys atomic and cheap, makes the API reusable, and the typed RPC client keeps the two ends in sync.'
+		},
+		{
+			question: 'How does it deploy?',
+			answer:
+				'Alchemy defines every Cloudflare resource in TypeScript, and GitHub Actions deploys a stage per pull request, plus staging and prod. Previews sit behind Cloudflare Access and are torn down when the PR closes.'
 		},
 		{
 			question: 'How do I change the look?',

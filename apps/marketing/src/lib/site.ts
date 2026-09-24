@@ -3,7 +3,7 @@ export const SITE_URL = 'https://svelteflare.com';
 export const GITHUB_URL = 'https://github.com/pinebasedev/svelteflare';
 export const SEO_TITLE = 'SvelteKit and Cloudflare SaaS boilerplate - Svelteflare';
 export const SEO_DESCRIPTION =
-  'An open-source, production-ready SaaS boilerplate with a SvelteKit SPA, typed Hono API, Better Auth, Stripe subscriptions, and a themed component library, deployed on Cloudflare Workers.';
+  'An open-source, production-ready SaaS boilerplate with a SvelteKit SPA, typed Hono API, Better Auth, Stripe subscriptions, and a themed component library, deployed on Cloudflare Workers with Alchemy.';
 export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 export const JSON_LD = {

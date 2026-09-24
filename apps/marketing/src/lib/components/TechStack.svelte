@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AlchemyIcon from './AlchemyIcon.svelte';
 	import BetterAuthIcon from '~icons/simple-icons/betterauth';
 	import CloudflareIcon from '~icons/simple-icons/cloudflare';
 	import CloudflareWorkersIcon from '~icons/simple-icons/cloudflareworkers';
@@ -19,7 +20,8 @@
 		{ label: 'Stripe', icon: StripeIcon },
 		{ label: 'shadcn-svelte', icon: ShadcnIcon },
 		{ label: 'Tailwind v4', icon: TailwindcssIcon },
-		{ label: 'Cloudflare Workers', icon: CloudflareWorkersIcon }
+		{ label: 'Cloudflare Workers', icon: CloudflareWorkersIcon },
+		{ label: 'Alchemy', icon: AlchemyIcon }
 	];
 </script>
 
