@@ -14,7 +14,7 @@ const sendEmail = async (
     text: string;
   }
 ) => {
-  // No `EMAIL` binding on stages without Email Routing (workers.dev).
+  // No `EMAIL` binding on a stage without a sender (`EMAIL_FROM_ADDRESS`).
   if (!env.EMAIL) {
     console.warn(
       JSON.stringify({ type: "email_skipped", level: "warn", to, subject })

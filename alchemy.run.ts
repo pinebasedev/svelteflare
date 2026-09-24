@@ -31,8 +31,8 @@ import { Marketing, Web } from './alchemy/Web.ts';
  * `pr-*` and `staging` sit behind Cloudflare Access (`alchemy/Access.ts`):
  * web app, API, and marketing site alike. `prod` is public.
  *
- * `alchemy dev` runs everything locally: the API in workerd on :9003 with a
- * local D1/R2/email simulator, and the web app and marketing site through their
+ * `alchemy dev` runs everything locally: the API in workerd on :9003 with
+ * local D1, R2, and email simulators, and the web app and marketing site through their
  * own Vite dev servers on :9002 and :9001.
  *
  * State: the local filesystem for `alchemy dev` and hand deploys; Cloudflare's
@@ -104,6 +104,14 @@ export default Alchemy.Stack(
       !dev && Option.isSome(stripeKey) ? yield* StripeWebhook(stage, urls.api) : undefined;
     if (stripeWebhook && access) yield* StripeWebhookBypass(stage, urls.api);
 
+    // Email: Cloudflare Email Service sends to any recipient once the sender's
+    // domain is onboarded, whatever hostname the Worker runs on. So every stage
+    // with an `EMAIL_FROM_ADDRESS` sends real mail; without one, emails are
+    // skipped and logged. `alchemy dev` always gets the simulator (messages land
+    // in .alchemy/local/email).
+    const configuredFrom = yield* stringOr('EMAIL_FROM_ADDRESS', '');
+    const emailFrom = configuredFrom || (dev ? 'hello@example.com' : undefined);
+
     const database = yield* Database(stage);
     const storage = yield* Storage(stage);
 
@@ -114,10 +122,7 @@ export default Alchemy.Stack(
       storage,
       webOrigin: urls.app,
       domain: domains.api || undefined,
-      // Local dev gets the email simulator (messages land in .alchemy/local/email).
-      // Deployed, sending needs Email Routing on the sender's domain, so only a
-      // prod stage on its own domain gets the binding.
-      sendEmail: dev || Boolean(domains.api),
+      emailFrom,
       stripeWebhookSecret: stripeWebhook?.secret,
       access
     });

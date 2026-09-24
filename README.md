@@ -135,6 +135,18 @@ Repository-level values serve `staging` and previews. For `prod`, create a GitHu
 restricted `STRIPE_API_KEY` (webhook endpoints: write only), and its own `BETTER_AUTH_SECRET`.
 Environment secrets override repository ones for the prod deploy only.
 
+### Email
+
+Verification codes and password resets go out through
+[Cloudflare Email Service](https://developers.cloudflare.com/email-service/). Onboard a sending
+domain once (dashboard: Email Service → Onboard Domain; with the domain's DNS on Cloudflare, the
+DKIM/SPF records are created for you), then set `EMAIL_FROM_ADDRESS` to an address on it. Every
+stage then sends real email, whatever hostname its Worker runs on; without it, emails are skipped
+and logged. Use separate senders so preview testing can't hurt production's sending reputation: a
+repository variable on a test subdomain (e.g. `noreply@test-mail.example.com`) for `staging` and
+previews, and a `production` environment variable (`noreply@mail.example.com`) for prod. All stages
+share the account's daily sending quota, which starts small and grows over time.
+
 ### Stripe
 
 `staging` and every `pr-*` stage share one Stripe sandbox; `prod` uses live mode. Each stage's
@@ -155,10 +167,6 @@ state in Cloudflare.
 
 ### Known gaps
 
-- **Email.** Sending needs Email Routing on the sender's domain, so only `prod` on a custom domain gets
-  the `EMAIL` binding. Enable Email Routing on that zone and verify `EMAIL_FROM_ADDRESS` in the
-  dashboard first. On `workers.dev` stages sign-up emails are skipped (logged), so email sign-up
-  can't be completed there; Google sign-in can, once its redirect URI is registered for that stage.
 - **Custom domains** need zone permissions the CI token doesn't have (see
   `alchemy/ciTokenPolicies.ts`).
 - **Cross-site cookies.** The web app and API are separate hosts. On `workers.dev` they're the same

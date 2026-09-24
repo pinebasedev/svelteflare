@@ -347,7 +347,7 @@ Adding a binding, secret, or var takes three edits:
 
 ### Email (Cloudflare Email Workers)
 
-The `EMAIL` binding is a `SendEmail` service, and it's optional: only local dev (a simulator that writes `.alchemy/local/email/*.eml`) and a prod stage on its own domain have it. `helpers/email.ts` logs and skips when it's absent. Access it via `c.env.EMAIL`. Sender address and name come from `c.env.EMAIL_FROM_ADDRESS` and `c.env.EMAIL_FROM_NAME`. Better Auth's emailOTP plugin uses this binding automatically for OTP emails.
+The `EMAIL` binding is a `SendEmail` service (Cloudflare Email Service), and it's optional: a deployed stage has it only when `EMAIL_FROM_ADDRESS` is set, and local dev always gets a simulator that writes `.alchemy/local/email/*.eml`. `helpers/email.ts` logs and skips when it's absent. Access it via `c.env.EMAIL`. Sender address and name come from `c.env.EMAIL_FROM_ADDRESS` and `c.env.EMAIL_FROM_NAME`. Better Auth's emailOTP plugin uses this binding automatically for OTP emails.
 
 ### Hono RPC type safety
 
