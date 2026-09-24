@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "singleQuote": true,
+  "trailingComma": "none",
+  "printWidth": 100,
+  "sortPackageJson": false,
+  "sortTailwindcss": {
+    "stylesheet": "./packages/ui/src/global.css"
+  },
+  "overrides": [
+    {
+      "files": ["*.svelte"],
+      "options": {
+        "svelte": true,
+        "useTabs": true
+      }
+    }
+  ],
+  "ignorePatterns": ["pnpm-lock.yaml", "packages/ui/src/components/**"]
+}

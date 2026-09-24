@@ -33,7 +33,7 @@ The API handles all business logic; the web app is a pure frontend that talks to
 ├── packages/
 │   ├── ui/           # Shared shadcn-svelte component library
 │   ├── typescript-config/  # Shared tsconfig bases (svelte.json, worker.json)
-│   └── eslint-config/      # Shared ESLint config
+│   └── lint/               # Theme lint rule, oxlint plugin, Svelte ESLint config
 ├── Justfile          # Convenience recipes (dev, build, deploy, db, lint)
 ├── turbo.json        # Turborepo task pipeline
 └── pnpm-workspace.yaml
@@ -75,8 +75,11 @@ Package names use the `@repo/*` workspace alias.
 - Web worker (static assets): `apps/web/wrangler.jsonc`
 - TypeScript: each app extends `@repo/typescript-config/{svelte,worker}.json`
 - Tailwind: v4 via `@tailwindcss/vite` plugin — no separate config file
-- Prettier: root `.prettierrc` (single quotes, print width 100, no trailing commas)
-- ESLint: `packages/eslint-config/index.js` — all apps inherit
+- Formatting: oxfmt, root `.oxfmtrc.json` (single quotes, print width 100, no trailing commas; tabs +
+  Tailwind class sorting in `.svelte`). `apps/api/.oxfmtrc.json` keeps the API's double quotes.
+  Generated shadcn components (`packages/ui/src/components`) are not formatted.
+- Linting: oxlint, root `.oxlintrc.json`, for all JS/TS (including `<script>` in `.svelte`). ESLint
+  runs only on `.svelte` files (`packages/lint/eslint.js`), for the markup rules oxlint can't see.
 
 ### Validators & Types
 
@@ -94,9 +97,9 @@ Package names use the `@repo/*` workspace alias.
 ```bash
 pnpm dev        # Start all dev servers
 pnpm build      # Build everything
-pnpm lint       # Lint all packages
+pnpm lint       # oxlint, then ESLint on .svelte files
 pnpm check      # Type-check all packages
-pnpm format     # Prettier format everything
+pnpm format     # oxfmt format everything
 ```
 
 **Just recipes (preferred for targeted work):**

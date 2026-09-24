@@ -17,7 +17,8 @@ const arbitraryColor = new RegExp(
 );
 
 // Raw hex / color functions in CSS contexts (<style> blocks, style attributes).
-const cssColorLiteral = /(#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|hwb|lab|lch|color-mix)\()/g;
+const cssColorLiteral =
+  /(#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|hwb|lab|lch|color-mix)\()/g;
 
 // Named colors assigned to color-only CSS properties.
 const cssNamedColor =
@@ -34,7 +35,8 @@ const COLOR_PROPS = new Set([
   'stroke'
 ]);
 
-const KEYWORD_VALUES = /^(?:var\(|inherit$|currentcolor$|transparent$|initial$|unset$|revert$|none$)/i;
+const KEYWORD_VALUES =
+  /^(?:var\(|inherit$|currentcolor$|transparent$|initial$|unset$|revert$|none$)/i;
 
 const CLASS_REGEXES = [paletteClass, arbitraryColor];
 const CSS_REGEXES = [cssColorLiteral, cssNamedColor];

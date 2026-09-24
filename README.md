@@ -41,7 +41,7 @@ apps/
   marketing/   Static, prerendered marketing site — delete or repurpose for your product
 packages/
   ui/                  Theme + component library (@repo/ui) — single source of truth for how things look
-  eslint-config/       Shared ESLint rules, including the theme/color-token lint rule
+  lint/                Theme/color-token lint rule, the oxlint plugin, and the Svelte-only ESLint config
   typescript-config/   Shared tsconfig bases for Svelte apps and the Worker
 ```
 
@@ -94,8 +94,8 @@ Run `just` with no arguments to see every recipe, grouped. The most common ones:
 just dev               # run all three apps together (web, api, marketing)
 just dev-web           # run a single app
 just check             # typecheck everything
-just lint              # ESLint + Prettier
-just format            # auto-format with Prettier
+just lint              # oxlint + ESLint (Svelte markup only)
+just format            # auto-format with oxfmt
 
 just migrate-local     # apply D1 migrations to your local database
 just generate          # generate a new migration from the Drizzle schema

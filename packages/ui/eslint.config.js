@@ -1,3 +1,3 @@
-import config from '@repo/eslint-config/index.js';
+import svelteLint from '@repo/lint/eslint';
 
-export default config;
+export default svelteLint();

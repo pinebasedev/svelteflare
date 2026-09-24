@@ -44,22 +44,22 @@ dev:
 # Build the web app
 [group('2. build')]
 build-web:
-  pnpm turbo build --filter=@repo/web
+  pnpm turbo build:development --filter=@repo/web
 
 # Build the API
 [group('2. build')]
 build-api:
-  pnpm turbo build --filter=@repo/api
+  pnpm turbo build:development --filter=@repo/api
 
 # Build the marketing site
 [group('2. build')]
 build-marketing:
-  pnpm turbo build --filter=@repo/marketing
+  pnpm turbo build:development --filter=@repo/marketing
 
 # Build everything
 [group('2. build')]
 build:
-  pnpm turbo build
+  pnpm turbo build:development
 
 
 # ================================================================= #
@@ -106,15 +106,15 @@ deploy-marketing-production:
 check:
   pnpm turbo check
 
-# Run ESLint + Prettier checks
+# Run oxlint + ESLint (Svelte markup) checks
 [group('4. checks')]
 lint:
-  pnpm turbo lint
+  pnpm lint
 
-# Format all files with Prettier
+# Format all files with oxfmt
 [group('4. checks')]
 format:
-  pnpm turbo format
+  pnpm format
 
 
 # ================================================================= #

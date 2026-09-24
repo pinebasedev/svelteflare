@@ -23,26 +23,25 @@
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": []
     },
-    "format": {
-      "dependsOn": ["check", "^format"],
+    "lint": {
       "cache": false,
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": []
     },
-    "lint": {
-      "dependsOn": ["format", "^lint"],
+    "build:development": {
+      "dependsOn": ["^build:development"],
       "cache": false,
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": []
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".svelte-kit/**", "build/**", "dist/**"]
     },
     "build:staging": {
-      "dependsOn": ["clean", "cf-typegen", "check", "format", "lint", "^build:staging"],
+      "dependsOn": ["clean", "cf-typegen", "check", "lint", "^build:staging"],
       "cache": false,
       "inputs": ["$TURBO_DEFAULT$", ".env*", "src/workerConfiguration.d.ts"],
       "outputs": [".svelte-kit/**", "build/**"]
     },
     "build:production": {
-      "dependsOn": ["clean", "cf-typegen", "check", "lint", "format", "^build:production"],
+      "dependsOn": ["clean", "cf-typegen", "check", "lint", "^build:production"],
       "cache": false,
       "inputs": ["$TURBO_DEFAULT$", ".env*", "src/workerConfiguration.d.ts"],
       "outputs": [".svelte-kit/**", "build/**"],

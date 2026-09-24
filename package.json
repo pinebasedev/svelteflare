@@ -4,17 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build",
+    "build": "turbo run build:development",
     "preview": "turbo run preview",
     "lint": "turbo run lint",
-    "format": "prettier --write .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "check": "turbo run check"
   },
   "devDependencies": {
-    "prettier": "3.9.4",
-    "prettier-plugin-svelte": "4.1.1",
-    "prettier-plugin-tailwindcss": "0.8.0",
-    "turbo": "2.10.4"
+    "oxfmt": "0.70.0",
+    "oxlint": "1.85.0",
+    "turbo": "2.11.3"
   },
-  "packageManager": "pnpm@10.26.0"
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": ">=24"
+  }
 }

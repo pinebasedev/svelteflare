@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "ui:add": "pnpm dlx shadcn-svelte@latest add",
-    "lint": "eslint ."
+    "lint": "oxlint && eslint \"src/**/*.svelte\""
   },
   "imports": {
     "#*": [
@@ -25,12 +25,12 @@
     "@fontsource/geist-mono": "5.3.0",
     "@internationalized/date": "3.12.4",
     "@lucide/svelte": "^1.48.0",
-    "@repo/eslint-config": "workspace:*",
+    "@repo/lint": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@tanstack/table-core": "^8.21.3",
     "bits-ui": "2.19.3",
     "embla-carousel-svelte": "^8.6.0",
-    "eslint": "10.6.0",
+    "eslint": "10.11.0",
     "layerchart": "2.5.0",
     "mode-watcher": "1.1.0",
     "paneforge": "^1.0.2",

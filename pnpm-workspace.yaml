@@ -2,10 +2,29 @@ packages:
   - apps/*
   - packages/*
 
-ignoredBuiltDependencies:
-  - better-sqlite3
-  - sharp
-  - workerd
+allowBuilds:
+  esbuild: true
+  core-js-pure: false
+  better-sqlite3: false
+  sharp: false
+  workerd: false
 
-onlyBuiltDependencies:
-  - esbuild
+# better-auth has an optional peer on @sveltejs/kit, so kit is installed into
+# apps/api too, where it never runs and TypeScript is on 7.
+peerDependencyRules:
+  allowedVersions:
+    '@sveltejs/kit>typescript': '7'
+
+# pnpm refuses versions published less than a day ago (`minimumReleaseAge`
+# defaults to 1440 minutes), so a compromised release has time to be caught.
+# These were already locked in before that policy applied.
+minimumReleaseAgeExclude:
+  - '@iconify/json@2.2.533'
+  - '@lucide/svelte@1.48.0'
+  - '@sveltejs/vite-plugin-svelte@7.3.1'
+  - caniuse-lite@1.0.30001812
+  - electron-to-chromium@1.5.438
+  - esrap@2.3.11
+  - hono@4.13.9
+  - magic-string@1.4.2
+  - node-releases@2.0.57

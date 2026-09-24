@@ -1,0 +1,75 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "jsPlugins": ["./packages/lint/oxlint-plugin.js"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "apps/web/**/*.svelte",
+        "apps/web/**/*.svelte.ts",
+        "apps/marketing/**/*.svelte",
+        "apps/marketing/**/*.svelte.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "bits-ui",
+                "message": "Import controls and reusable UI primitives from @repo/ui."
+              },
+              {
+                "name": "formsnap",
+                "message": "Import the shared Form components from @repo/ui."
+              }
+            ],
+            "patterns": [
+              {
+                "regex": "^(@lucide/svelte|lucide-svelte)(/|$)",
+                "message": "Use ~icons/lucide/* for icons and @repo/ui for controls."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "apps/web/src/**/*.ts",
+        "apps/web/src/**/*.js",
+        "apps/marketing/src/**/*.ts",
+        "apps/marketing/src/**/*.js"
+      ],
+      "rules": {
+        "theme/no-hardcoded-colors": "error"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "**/.svelte-kit/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/.turbo/**",
+    "**/.wrangler/**",
+    "apps/api/src/workerConfiguration.d.ts"
+  ]
+}

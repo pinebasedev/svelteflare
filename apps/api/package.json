@@ -12,9 +12,7 @@
     "build:production": "CLOUDFLARE_ENV=production vite build",
     "check": "tsc --noEmit -p tsconfig.json",
     "cf-typegen": "wrangler types src/workerConfiguration.d.ts",
-    "lint": "prettier --check . && eslint .",
-    "format": "NODE_OPTIONS=\"--experimental-strip-types\" prettier --write .",
-    "generate:auth": "auth generate --config auth.config.ts --output src/db/auth-schema.ts --yes && prettier --write src/db/auth-schema.ts",
+    "generate:auth": "auth generate --config auth.config.ts --output src/db/auth-schema.ts --yes && oxfmt src/db/auth-schema.ts",
     "generate:db": "drizzle-kit generate --config drizzle.config.ts",
     "migrate:local": "wrangler d1 migrations apply DB --local",
     "migrate:staging": "wrangler d1 migrations apply DB --env staging --remote",
@@ -22,7 +20,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "deploy:staging": "pnpm run build:staging && wrangler deploy",
-    "deploy:production": "pnpm run build:production && wrangler deploy"
+    "deploy:production": "pnpm run build:production && wrangler deploy",
+    "lint": "oxlint"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.5",
@@ -37,19 +36,16 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.43.0",
-    "@cloudflare/vitest-pool-workers": "0.18.0",
-    "@cloudflare/workers-types": "5.20260707.1",
-    "@repo/eslint-config": "workspace:*",
+    "@cloudflare/vite-plugin": "1.57.3",
+    "@cloudflare/vitest-pool-workers": "0.22.0",
+    "@cloudflare/workers-types": "5.20260923.1",
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "26.1.0",
+    "@types/node": "26.6.2",
     "auth": "1.7.5",
     "drizzle-kit": "1.0.0-rc.5-5935859",
-    "eslint": "10.6.0",
-    "typescript": "6.0.3",
-    "vite": "8.1.3",
+    "typescript": "7.0.2",
+    "vite": "8.3.0",
     "vitest": "4.1.10",
-    "wrangler": "4.107.0"
-  },
-  "packageManager": "pnpm@10.26.0"
+    "wrangler": "4.136.3"
+  }
 }

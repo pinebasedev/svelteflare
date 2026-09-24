@@ -1,0 +1,17 @@
+{
+  "name": "@repo/lint",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./eslint": "./eslint.js",
+    "./oxlint-plugin": "./oxlint-plugin.js"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "8.70.1",
+    "eslint-plugin-svelte": "3.23.0"
+  },
+  "scripts": {
+    "lint": "oxlint"
+  }
+}
