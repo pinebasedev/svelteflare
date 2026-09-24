@@ -1,9 +1,7 @@
 import { RemovalPolicy } from 'alchemy';
 import * as Stripe from 'alchemy/Stripe';
+import { STRIPE_WEBHOOK_PATH } from '../apps/api/src/helpers/stripe.ts';
 import { APP } from './project.ts';
-
-/** Where better-auth's Stripe plugin receives webhooks (`basePath` + `/stripe/webhook`). */
-export const STRIPE_WEBHOOK_PATH = '/v1/auth/stripe/webhook';
 
 /**
  * The stage's Stripe webhook endpoint, registered against its API. Its signing

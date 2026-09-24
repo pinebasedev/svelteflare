@@ -3,17 +3,13 @@ import { createMiddleware } from "hono/factory";
 import { Jwt } from "hono/utils/jwt";
 import type { HonoJsonWebKey } from "hono/utils/jwt/types";
 import { jsonError } from "../helpers/http";
+import { STRIPE_WEBHOOK_PATH } from "../helpers/stripe";
 import type { AppEnv } from "../types";
 
 // Cloudflare Access forwards the verified identity as a bare JWT in this
 // header (no `Bearer` prefix), so `hono/jwk` doesn't fit.
 export const ACCESS_JWT_HEADER = "Cf-Access-Jwt-Assertion";
 const JWKS_TTL_MS = 60 * 60 * 1000;
-
-// Stripe can't log in to Access, so the stack exempts this one path from the
-// gate (`alchemy/Access.ts`, `StripeWebhookBypass`); requests to it carry no
-// assertion. Stripe's signature, checked by better-auth, protects it instead.
-export const STRIPE_WEBHOOK_PATH = "/v1/auth/stripe/webhook";
 
 export type AccessJwtConfig = {
   /** Zero Trust team name: `<team>.cloudflareaccess.com`. */
@@ -100,7 +96,10 @@ export const createAccessJwtMiddleware = (
  * stages. `prod` (public) and `alchemy dev` (no Access locally) pass through.
  * Runs after CORS, which answers preflights itself; Access lets those through
  * unauthenticated (`optionsPreflightBypass`), so they never reach this check.
- * The Stripe webhook path is exempt, matching its Access bypass.
+ * The Stripe webhook path is exempt, matching its Access bypass
+ * (`alchemy/Access.ts`, `StripeWebhookBypass`): Stripe can't log in to Access,
+ * so its requests carry no assertion. Stripe's signature, checked by
+ * better-auth, protects it instead.
  */
 export const accessJwtMiddleware = createMiddleware<AppEnv>(async (c, next) => {
   const { CF_ACCESS_TEAM_DOMAIN: teamDomain, CF_ACCESS_AUD: aud } = c.env;

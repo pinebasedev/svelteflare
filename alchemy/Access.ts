@@ -1,8 +1,8 @@
 import * as Cloudflare from 'alchemy/Cloudflare';
 import * as Config from 'effect/Config';
 import * as Effect from 'effect/Effect';
+import { STRIPE_WEBHOOK_PATH } from '../apps/api/src/helpers/stripe.ts';
 import { APP } from './project.ts';
-import { STRIPE_WEBHOOK_PATH } from './Stripe.ts';
 
 /**
  * Cloudflare Access for the review stages (`pr-*` and `staging`); `prod` is

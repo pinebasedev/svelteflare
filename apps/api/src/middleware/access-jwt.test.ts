@@ -2,12 +2,12 @@ import { Hono } from "hono";
 import { Jwt } from "hono/utils/jwt";
 import type { HonoJsonWebKey } from "hono/utils/jwt/types";
 import { beforeAll, describe, expect, it } from "vitest";
+import { STRIPE_WEBHOOK_PATH } from "../helpers/stripe";
 import type { AppEnv } from "../types";
 import {
   ACCESS_JWT_HEADER,
   accessJwtMiddleware,
-  createAccessJwtMiddleware,
-  STRIPE_WEBHOOK_PATH
+  createAccessJwtMiddleware
 } from "./access-jwt";
 
 const teamDomain = "acme";
